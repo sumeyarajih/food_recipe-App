@@ -1,16 +1,45 @@
-# food_recipe
+# 🍳 Tasty Bites - Food Recipe App
 
-A new Flutter project.
+![App Screenshot](assets/screenshots/app_preview.png) <!-- Add your screenshot path -->
 
-## Getting Started
+A beautiful Flutter recipe application with modern UI, featuring recipe discovery, chef profiles, and personalized collections.
 
-This project is a starting point for a Flutter application.
+## ✨ Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🔍 Search recipes by name, ingredients, or categories
+- 🍽️ Browse recipes by categories (Breakfast, Lunch, Dinner, Desserts)
+- 👨‍🍳 Follow favorite chefs and view their recipes
+- ❤️ Save favorite recipes to collections
+- 🌙 Dark/Light mode toggle
+- 📱 Fully responsive design for all screen sizes
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 📱 Screens
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Splash Screen | Home Screen | Profile Screen |
+|--------------|-------------|----------------|
+| ![Splash](assets/screenshots/splash.png) | ![Home](assets/screenshots/home.png) | ![Profile](assets/screenshots/profile.png) |
+
+| Recipe Details | Search | Categories |
+|---------------|--------|------------|
+| ![Details](assets/screenshots/details.png) | ![Search](assets/screenshots/search.png) | ![Categories](assets/screenshots/categories.png) |
+
+## 🛠️ Technologies Used
+
+- **Flutter** - Framework for cross-platform development
+- **Dart** - Programming language
+- **Material Design** - UI components and theming
+- **Responsive Framework** - Adaptive layout for all devices
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Flutter SDK (version 3.0.0 or higher)
+- Dart SDK (version 2.17.0 or higher)
+- Android Studio/VSCode with Flutter plugin
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/food-recipe-app.git
