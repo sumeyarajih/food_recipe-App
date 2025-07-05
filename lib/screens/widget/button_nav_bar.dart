@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/home/chef.dart';
 import 'package:food_recipe/screens/home/home.dart';
 import 'package:food_recipe/screens/profile/profile.dart';
+import 'package:food_recipe/screens/recipe/create_recipe.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -104,7 +105,7 @@ class CustomBottomNav extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => HomePage(),
+                          pageBuilder: (_, __, ___) => CreateRecipeScreen(),
                           transitionDuration: Duration.zero,
                         ),
                       );
@@ -195,7 +196,7 @@ class CustomBottomNav extends StatelessWidget {
     switch (index) {
       case 0: return HomePage(); // Changed from SimulationPage to HomePage
     //  case 1: return const ExplorePage(); // You might want to rename this to ExplorePage
-     // case 2: return AddPage(); // This is your "Add" page - you might want to create a new page
+     case 2: return CreateRecipeScreen(); // This is your "Add" page - you might want to create a new page
       case 3: return const ChefPage(); // Changed to Bookmark - you might want to create a BookmarkPage
       case 4: return const ProfilePage();
       default: return HomePage();

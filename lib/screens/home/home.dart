@@ -58,9 +58,9 @@ class _HomePageState extends State<HomePage> {
                     controller: _searchController,
                     hintText: 'Search recipes...',
                     leading: const Icon(Icons.search, color: Colors.grey),
-                    backgroundColor: MaterialStateProperty.all(Colors.grey[200]),
-                    elevation: MaterialStateProperty.all(0),
-                    shape: MaterialStateProperty.all(
+                    backgroundColor: WidgetStateProperty.all(Colors.grey[200]),
+                    elevation: WidgetStateProperty.all(0),
+                    shape: WidgetStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

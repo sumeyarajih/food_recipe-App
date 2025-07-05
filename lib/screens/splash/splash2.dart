@@ -16,22 +16,13 @@ class _Splash2State extends State<Splash2> {
   @override
   void initState() {
     super.initState();
-    
+
     // Show button after 1.5 seconds
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         setState(() {
           _showButton = true;
         });
-      }
-    });
-
-    // Auto-navigate to home after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
       }
     });
   }
@@ -55,19 +46,18 @@ class _Splash2State extends State<Splash2> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // App logo/image - responsive
+                // App logo - natural image without tint or background
                 Container(
                   height: isSmallScreen ? screenHeight * 0.2 : 150,
                   width: isSmallScreen ? screenHeight * 0.2 : 150,
                   margin: EdgeInsets.only(bottom: screenHeight * 0.04),
                   child: Image.asset(
-                    'assets/logo.png',
-                    color: _pinkColor,
+                    'assets/images/food_logo.png',
                     fit: BoxFit.contain,
                   ),
                 ),
-                
-                // App name - responsive
+
+                // App name
                 Text(
                   'Tasty Bites',
                   style: TextStyle(
@@ -83,10 +73,10 @@ class _Splash2State extends State<Splash2> {
                     ],
                   ),
                 ),
-                
+
                 SizedBox(height: isSmallScreen ? 10 : 15),
-                
-                // Tagline - responsive
+
+                // Tagline
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: isSmallScreen ? 20.0 : 40.0,
@@ -100,10 +90,10 @@ class _Splash2State extends State<Splash2> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: isSmallScreen ? 30 : 40),
-                
-                // Continue button or loading indicator
+
+                // Continue button or loader
                 if (_showButton)
                   SizedBox(
                     width: isSmallScreen ? screenHeight * 0.25 : 200,
