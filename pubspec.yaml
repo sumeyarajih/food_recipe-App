@@ -84,6 +84,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/food_logo.png
+    - assets/images/recipe_card.jpeg
 
 
 

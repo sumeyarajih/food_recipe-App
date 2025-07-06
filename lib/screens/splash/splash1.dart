@@ -13,7 +13,7 @@ class _Splash1State extends State<Splash1> with SingleTickerProviderStateMixin {
   late List<Animation<double>> _letterAnimations;
   final String _appName = "Tasty Bites";
   final Color _pinkColor = const Color(0xFFEC407A);
-  final Color _bgColor = Colors.white;
+  final Color _bgColor = const Color.fromARGB(255, 247, 230, 235);
 
   @override
   void initState() {

@@ -20,7 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 247, 230, 235),
       appBar: const TopNavBar(
       ),
       body: SingleChildScrollView(
@@ -97,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   _buildProfileTab('My Recipes', 0),
                   _buildProfileTab('Liked', 1),
-                  _buildProfileTab('Chefs', 2),
+                  _buildProfileTab('Message', 2),
                 ],
               ),
             ),

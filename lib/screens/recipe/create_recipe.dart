@@ -9,7 +9,7 @@ class CreateRecipeScreen extends StatefulWidget {
 
 class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
-  final Color _pinkColor = Color(0xFFfa8b9a);
+  final Color _pinkColor = Color(0xFFEC407A);
   final Color _whiteColor = Color(0xFFFFFFFF);
 
   // Recipe fields
@@ -43,9 +43,185 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   void _submitRecipe() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // TODO: Implement recipe submission logic
-      Navigator.pop(context);
+      _showConfirmationDialog();
     }
+  }
+
+  void _showConfirmationDialog() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(isSmallScreen ? 20 : 25),
+            decoration: BoxDecoration(
+              color: _whiteColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.help_outline,
+                  size: 60,
+                  color: _pinkColor,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Confirm Recipe Publication',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 18 : 22,
+                    fontWeight: FontWeight.bold,
+                    color: _pinkColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 15),
+                Text(
+                  'Are you sure you want to publish this recipe?',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          side: BorderSide(color: _pinkColor),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: _pinkColor,
+                            fontSize: isSmallScreen ? 14 : 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _showSuccessDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _pinkColor,
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Publish',
+                          style: TextStyle(
+                            color: _whiteColor,
+                            fontSize: isSmallScreen ? 14 : 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        Future.delayed(Duration(milliseconds: 1500), () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pop(); // Also pop the CreateRecipeScreen
+        });
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(isSmallScreen ? 20 : 25),
+            decoration: BoxDecoration(
+              color: _whiteColor,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  size: 60,
+                  color: Colors.green,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Recipe Published!',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 18 : 22,
+                    fontWeight: FontWeight.bold,
+                    color: _pinkColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 15),
+                Text(
+                  'Your recipe has been successfully published.',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 25),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override

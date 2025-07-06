@@ -10,7 +10,7 @@ class Splash2 extends StatefulWidget {
 
 class _Splash2State extends State<Splash2> {
   final Color _pinkColor = const Color(0xFFEC407A);
-  final Color _bgColor = Colors.white;
+  final Color _bgColor = const Color.fromARGB(255, 247, 230, 235);
   bool _showButton = false;
 
   @override

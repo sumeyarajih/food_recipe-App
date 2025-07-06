@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/recipe/recipe_details.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeCard extends StatefulWidget {
   final String title;
   final String description;
   final String time;
@@ -9,6 +10,8 @@ class RecipeCard extends StatelessWidget {
   final String chefName;
   final bool isBookmarked;
   final String imageUrl;
+  final VoidCallback? onLike;
+  final VoidCallback? onViewRecipe;
 
   const RecipeCard({
     super.key,
@@ -20,7 +23,36 @@ class RecipeCard extends StatelessWidget {
     required this.chefName,
     this.isBookmarked = false,
     required this.imageUrl,
+    this.onLike,
+    this.onViewRecipe,
   });
+
+  @override
+  State<RecipeCard> createState() => _RecipeCardState();
+}
+
+class _RecipeCardState extends State<RecipeCard> {
+  bool _isLiked = false;
+  bool _showLikeAnimation = false;
+
+  void _handleLike() {
+    setState(() {
+      _isLiked = !_isLiked;
+      _showLikeAnimation = _isLiked;
+    });
+    
+    if (_showLikeAnimation) {
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) {
+          setState(() {
+            _showLikeAnimation = false;
+          });
+        }
+      });
+    }
+    
+    widget.onLike?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,34 +63,35 @@ class RecipeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFfa8b9a).withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: const Color(0xFFEC407A).withOpacity(0.1),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: const Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Recipe Image with Bookmark
           Stack(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: Image.network(
-                  imageUrl,
-                  height: 160,
+                  widget.imageUrl,
+                  height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Icon(
-                  isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                  color: isBookmarked ? const Color(0xFFfa8b9a) : Colors.white,
-                  size: 28,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 180,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.fastfood, size: 50, color: Colors.grey),
+                  ),
                 ),
               ),
               Positioned(
@@ -69,11 +102,18 @@ class RecipeCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
-                    time,
+                    widget.time,
                     style: const TextStyle(
-                      color: Color(0xFFfa8b9a),
+                      color: Color(0xFFEC407A),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -81,36 +121,54 @@ class RecipeCard extends StatelessWidget {
               ),
             ],
           ),
-          
-          // Recipe Details
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Rating Row
                 Row(
                   children: [
                     ...List.generate(5, (index) => Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFfa8b9a),
+                      index < widget.rating ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFEC407A),
                       size: 16,
                     )),
                     const SizedBox(width: 4),
                     Text(
-                      '($reviewCount)',
+                      '(${widget.reviewCount})',
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
                       ),
                     ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: _handleLike,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_showLikeAnimation)
+                              const Icon(
+                                Icons.favorite,
+                                color: Color(0xFFEC407A),
+                                size: 24,
+                              ),
+                            Icon(
+                              _isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: _isLiked ? const Color(0xFFEC407A) : Colors.black87,
+                              size: 24,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                
-                // Title
                 Text(
-                  title,
+                  widget.title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -118,18 +176,16 @@ class RecipeCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                
-                // Description
                 Text(
-                  description,
+                  widget.description,
                   style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 14,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
-                
-                // Chef Row
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Container(
@@ -138,22 +194,63 @@ class RecipeCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFFfa8b9a),
+                          color: const Color(0xFFEC407A),
                           width: 2,
                         ),
                       ),
                       child: const Icon(
                         Icons.person,
                         size: 12,
-                        color: Color(0xFFfa8b9a),
+                        color: Color(0xFFEC407A),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      chefName,
+                      widget.chefName,
                       style: const TextStyle(
-                        color: Color(0xFFfa8b9a),
+                        color: Color(0xFFEC407A),
                         fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipeDetailPage(
+                              recipeName: widget.title,
+                              chefName: widget.chefName,
+                              rating: widget.rating.toDouble(),
+                              commentCount: widget.reviewCount,
+                              preparationTime: int.tryParse(widget.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                              difficulty: 'Medium', // You might want to add this to your RecipeCard parameters
+                              servings: 4, // You might want to add this to your RecipeCard parameters
+                              likeCount: 0, // You might want to add this to your RecipeCard parameters
+                              isShared: false, imageUrl: '', // You might want to add this to your RecipeCard parameters
+                            ),
+                          ),
+                        );
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(const Color(0xFFEC407A)),
+                        foregroundColor: MaterialStateProperty.all(Colors.white),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        elevation: MaterialStateProperty.all(2),
+                      ),
+                      child: const Text(
+                        'View Recipe',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -166,15 +263,3 @@ class RecipeCard extends StatelessWidget {
     );
   }
 }
-
-// Example usage:
-// RecipeCard(
-//   imageUrl: 'https://example.com/pancakes.jpg',
-//   title: 'Strawberry Pancakes',
-//   description: 'Fluffy pancakes topped with fresh strawberries and maple syrup',
-//   time: '25 min',
-//   rating: 5,
-//   reviewCount: 128,
-//   chefName: 'Chef Maria',
-//   isBookmarked: false,
-// )

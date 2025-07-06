@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/home/chef.dart';
+import 'package:food_recipe/screens/recipe/recipe_search_delegate.dart';
+import 'package:food_recipe/screens/recipe/trending_recipe.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
+import 'package:food_recipe/screens/widget/recipe_card.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,19 +16,40 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final TextEditingController _searchController = TextEditingController();
+  final List<Recipe> recipes = recipeJsonList.map((json) => Recipe.fromJson(json)).toList();
+  RecipeCategory _selectedCategory = RecipeCategory.all;
+
+  List<Recipe> get filteredRecipes {
+    if (_selectedCategory == RecipeCategory.all) {
+      return recipes;
+    }
+    return recipes.where((recipe) => recipe.category == _selectedCategory).toList();
+  }
 
   void _onTabSelected(int index) {
     setState(() {
       _currentIndex = index;
     });
-    // Add actual navigation logic here if you have multiple pages
+  }
+
+  void _onCategorySelected(RecipeCategory category) {
+    setState(() {
+      _selectedCategory = category;
+    });
   }
 
   void _onSearchTap() {
     showSearch(
       context: context,
-      delegate: RecipeSearchDelegate(),
-    );
+      delegate: RecipeSearchDelegate(recipes),
+    ).then((selectedRecipe) {
+      if (selectedRecipe != null) {
+        // Handle recipe selection
+        // Navigator.push(context, MaterialPageRoute(
+        //   builder: (context) => RecipeDetailsPage(recipe: selectedRecipe),
+        // ));
+      }
+    });
   }
 
   @override
@@ -39,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 247, 230, 235),
       appBar: const TopNavBar(),
       body: SingleChildScrollView(
         child: Column(
@@ -58,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                     controller: _searchController,
                     hintText: 'Search recipes...',
                     leading: const Icon(Icons.search, color: Colors.grey),
-                    backgroundColor: WidgetStateProperty.all(Colors.grey[200]),
+                    backgroundColor: WidgetStateProperty.all(Colors.white),
                     elevation: WidgetStateProperty.all(0),
                     shape: WidgetStateProperty.all(
                       RoundedRectangleBorder(
@@ -69,39 +94,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
-            // Categories Section
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 16.0 : 24.0,
-              ),
-              child: const Text(
-                'Categories',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(
-                  horizontal: isSmallScreen ? 16.0 : 24.0,
-                ),
-                children: const [
-                  CategoryChip(label: 'All'),
-                  CategoryChip(label: 'Breakfast'),
-                  CategoryChip(label: 'Lunch'),
-                  CategoryChip(label: 'Dinner'),
-                  CategoryChip(label: 'Desserts'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
 
             // Featured Chefs Section
             Padding(
@@ -119,10 +111,13 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.black,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // Navigate to chefs list
-                    },
+                 TextButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChefPage()),
+    );
+  },
                     child: const Text(
                       'See All',
                       style: TextStyle(
@@ -152,13 +147,46 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 24),
 
+            // Categories Section
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 16.0 : 24.0,
+              ),
+              child: const Text(
+                'Categories',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 16.0 : 24.0,
+                ),
+                children: [
+                  _buildCategoryChip('All', RecipeCategory.all),
+                  _buildCategoryChip('Breakfast', RecipeCategory.breakfast),
+                  _buildCategoryChip('Lunch', RecipeCategory.lunch),
+                  _buildCategoryChip('Dinner', RecipeCategory.dinner),
+                  _buildCategoryChip('Desserts', RecipeCategory.desserts),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Popular Recipes Section
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 16.0 : 24.0,
               ),
               child: const Text(
-                'Popular Recipes',
+                'Trending Recipes',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -167,22 +195,28 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 16),
-            GridView.builder(
+            Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 16.0 : 24.0,
               ),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isSmallScreen ? 2 : 3,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-                childAspectRatio: 0.8,
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filteredRecipes.length,
+                itemBuilder: (context, index) {
+                  final recipe = filteredRecipes[index];
+                  return RecipeCard(
+                    title: recipe.title,
+                    description: recipe.description,
+                    time: recipe.time,
+                    rating: recipe.rating,
+                    reviewCount: recipe.reviewCount,
+                    chefName: recipe.chefName,
+                    isBookmarked: recipe.isBookmarked,
+                    imageUrl: recipe.imageUrl,
+                  );
+                },
               ),
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                return RecipeCard(index: index);
-              },
             ),
           ],
         ),
@@ -193,95 +227,20 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
 
-class RecipeSearchDelegate extends SearchDelegate<String> {
-  final List<String> _recentSearches = [
-    'Pasta',
-    'Chicken',
-    'Vegetarian',
-    'Desserts'
-  ];
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, '');
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.search, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            'Search results for: "$query"',
-            style: const TextStyle(fontSize: 18),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty
-        ? _recentSearches
-        : _recentSearches.where((item) => item.toLowerCase().contains(query.toLowerCase())).toList();
-
-    return ListView.builder(
-      itemCount: suggestionList.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: const Icon(Icons.history, color: Colors.grey),
-          title: Text(suggestionList[index]),
-          onTap: () {
-            query = suggestionList[index];
-            showResults(context);
-          },
-        );
-      },
-    );
-  }
-}
-
-class CategoryChip extends StatelessWidget {
-  final String label;
-  const CategoryChip({super.key, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCategoryChip(String label, RecipeCategory category) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: ChoiceChip(
         label: Text(label),
-        selected: label == 'All',
+        selected: _selectedCategory == category,
         selectedColor: const Color(0xFFEC407A),
         labelStyle: TextStyle(
-          color: label == 'All' ? Colors.white : Colors.black,
+          color: _selectedCategory == category ? Colors.white : Colors.black,
         ),
-        backgroundColor: Colors.grey[200],
+        backgroundColor: Colors.white,
         onSelected: (selected) {
-          // Handle category selection
+          _onCategorySelected(category);
         },
       ),
     );
@@ -300,100 +259,77 @@ class ChefCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.grey[200],
-            child: ClipOval(
-              child: Image.asset(
-                image,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 40),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.white,
+              child: ClipOval(
+                child: image.isNotEmpty
+                    ? Image.asset(
+                        image,
+                        width: 70,
+                        height: 70,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Color(0xFFEC407A),
+                        ),
+                      )
+                    : Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Color(0xFFEC407A),
+                      ),
               ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class RecipeCard extends StatelessWidget {
-  final int index;
-  const RecipeCard({super.key, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Container(
-                color: Colors.grey[200],
-                child: Center(
-                  child: Icon(
-                    Icons.fastfood,
-                    size: 50,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recipe ${index + 1}',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.timer, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${15 + index * 5} mins',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+
+
+
+
+
