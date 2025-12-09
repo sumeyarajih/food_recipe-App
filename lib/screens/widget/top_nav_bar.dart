@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/Notification/notification.dart';
 
 class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onProfilePressed;
@@ -36,7 +37,12 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               // Notification icon
               IconButton(
-                onPressed: onNotificationPressed ?? () {},
+               onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NotificationsScreen()),
+    );
+               },
                 icon: const Icon(
                   Icons.notifications_outlined,
                   color: Colors.black, // Black icon

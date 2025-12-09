@@ -1,48 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/widget/recipe_card.dart';
+import 'package:food_recipe/model/recipe_model.dart';
 
-enum RecipeCategory { all, breakfast, lunch, dinner, desserts }
-
-class Recipe {
-  final String title;
-  final String description;
-  final String time;
-  final int rating;
-  final int reviewCount;
-  final String chefName;
-  final bool isBookmarked;
-  final String imageUrl;
-  final RecipeCategory category;
-
-  Recipe({
-    required this.title,
-    required this.description,
-    required this.time,
-    required this.rating,
-    required this.reviewCount,
-    required this.chefName,
-    this.isBookmarked = false,
-    required this.imageUrl,
-    required this.category,
-  });
-
-  factory Recipe.fromJson(Map<String, dynamic> json) {
-    return Recipe(
-      title: json['title'],
-      description: json['description'],
-      time: json['time'],
-      rating: json['rating'],
-      reviewCount: json['reviewCount'],
-      chefName: json['chefName'],
-      isBookmarked: json['isBookmarked'] ?? false,
-      imageUrl: json['imageUrl'],
-      category: RecipeCategory.values.firstWhere(
-        (e) => e.toString().split('.').last == json['category'],
-        orElse: () => RecipeCategory.all,
-      ),
-    );
-  }
-}
+// Recipe class moved to models/recipe_model.dart
 
 final List<Map<String, dynamic>> recipeJsonList = [
   {

@@ -1,222 +1,248 @@
-// signup_page.dart
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/auth/otp.dart';
 import 'package:food_recipe/screens/auth/signin.dart';
+import 'package:food_recipe/screens/widget/background_decoration.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
 
-  @override
-  State<SignupPage> createState() => _SignupPageState();
-}
-
-class _SignupPageState extends State<SignupPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _motherNameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+class SignupScreen extends StatelessWidget {
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Title
-                const Text(
-                  'Sign Up',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Username Field
-                _buildTextField(
-                  label: 'User name',
-                  hintText: 'User name',
-                  controller: _usernameController,
-                  icon: Icons.person,
-                ),
-                const SizedBox(height: 20),
-
-                // Mother's Name Field
-                _buildTextField(
-                  label: 'Mother Austin',
-                  hintText: 'Mother Austin',
-                  controller: _motherNameController,
-                  icon: Icons.person_outline,
-                ),
-                const SizedBox(height: 20),
-
-                // Password Field
-                _buildTextField(
-                  label: 'Password',
-                  hintText: 'Password',
-                  controller: _passwordController,
-                  icon: Icons.lock,
-                  isPassword: true,
-                ),
-                const SizedBox(height: 20),
-
-                // Confirm Password Field
-                _buildTextField(
-                  label: 'Confirm Password',
-                  hintText: 'Confirm Password',
-                  controller: _confirmPasswordController,
-                  icon: Icons.lock_outline,
-                  isPassword: true,
-                ),
-                const SizedBox(height: 30),
-
-                // Sign Up Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Signup logic here
-                      _performSignup();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-
-                // Terms and Conditions
-                const Text(
-                  'By signing up, you agree to our Terms and Conditions',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-
-                // Already have account link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
+        children: [
+          const BackgroundDecoration(),
+          Center(
+            child: SingleChildScrollView(
+             child: Container(
+  constraints: BoxConstraints(
+    maxWidth: 450, // Use constraints instead of maxWidth
+  ),
+  width: MediaQuery.of(context).size.width * 0.9,
+  padding: const EdgeInsets.all(30),
+  decoration: BoxDecoration(
+    color: Colors.white.withOpacity(0.95),
+    borderRadius: BorderRadius.circular(20),
+    boxShadow: [
+      BoxShadow(
+        color: const Color(0xFFE6398C).withOpacity(0.2),
+        blurRadius: 20,
+        spreadRadius: 5,
+      ),
+    ],
+  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Already have an account? ',
-                      style: TextStyle(color: Colors.grey),
+                    // Logo
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          size: 32,
+                          color: Color(0xFFE6398C),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Legin',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFE6398C),
+                          ),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()),
+                    const SizedBox(height: 20),
+                    
+                    // Create Account text
+                    const Column(
+                      children: [
+                        Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFE6398C),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Learn spam asks at email, contactbar',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    
+                    // Full name field
+                    const TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Full name',
+                        labelStyle: TextStyle(color: Color(0xFF555555)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Color(0xFFE6398C)),
+                        ),
+                        prefixIcon: Icon(Icons.person, color: Color(0xFFE6398C)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Email field
+                    const TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(color: Color(0xFF555555)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Color(0xFFE6398C)),
+                        ),
+                        prefixIcon: Icon(Icons.email, color: Color(0xFFE6398C)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Password field
+                    const TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: Color(0xFF555555)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Color(0xFFE6398C)),
+                        ),
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFFE6398C)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Confirm Password field
+                    const TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        labelStyle: TextStyle(color: Color(0xFF555555)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Color(0xFFE6398C)),
+                        ),
+                        prefixIcon: Icon(Icons.lock_outline, color: Color(0xFFE6398C)),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    
+                    // Create account button
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => const OtpScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(0.0, 1.0);
+                              const end = Offset.zero;
+                              const curve = Curves.ease;
+                              
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                              var offsetAnimation = animation.drive(tween);
+                              
+                              return SlideTransition(
+                                position: offsetAnimation,
+                                child: child,
+                              );
+                            },
+                          ),
                         );
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE6398C),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5,
+                        shadowColor: const Color(0xFFE6398C).withOpacity(0.3),
+                      ),
                       child: const Text(
-                        'Login here',
+                        'Create account',
                         style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    
+                    // Sign in link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Have an account? ",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  const begin = Offset(-1.0, 0.0);
+                                  const end = Offset.zero;
+                                  const curve = Curves.ease;
+                                  
+                                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                  var offsetAnimation = animation.drive(tween);
+                                  
+                                  return SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Sign in',
+                            style: TextStyle(
+                              color: Color(0xFFE6398C),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String hintText,
-    required TextEditingController controller,
-    required IconData icon,
-    bool isPassword = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey[700]!),
-          ),
-          child: TextField(
-            controller: controller,
-            obscureText: isPassword,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: const TextStyle(color: Colors.grey),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(15),
-              prefixIcon: Icon(icon, color: Colors.grey),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: const Icon(Icons.visibility_off, color: Colors.grey),
-                      onPressed: () {},
-                    )
-                  : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _performSignup() {
-    // Add your signup logic here
-    final username = _usernameController.text;
-    final motherName = _motherNameController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    if (username.isNotEmpty &&
-        motherName.isNotEmpty &&
-        password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        // Registration logic
-        print('Signing up: $username, $motherName');
-      } else {
-        // Show error
-        print('Passwords do not match');
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _motherNameController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
   }
 }

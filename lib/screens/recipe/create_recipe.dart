@@ -13,6 +13,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final Color _whiteColor = Color(0xFFFFFFFF);
 
   // Recipe fields
+  // ignore: unused_field
   String _title = '';
   List<String> _ingredients = [''];
   List<String> _steps = [''];

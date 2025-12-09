@@ -5,7 +5,7 @@ class RecipeCard extends StatefulWidget {
   final String title;
   final String description;
   final String time;
-  final int rating;
+  final double rating;
   final int reviewCount;
   final String chefName;
   final bool isBookmarked;

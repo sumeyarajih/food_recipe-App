@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_recipe/screens/home/home.dart';
+import 'package:food_recipe/screens/auth/welcome_screen.dart';
 
 class Splash2 extends StatefulWidget {
   const Splash2({super.key});
@@ -29,7 +29,7 @@ class _Splash2State extends State<Splash2> {
 
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomePage()),
+      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
     );
   }
 

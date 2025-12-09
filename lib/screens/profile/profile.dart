@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/profile/edit_profile.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 
@@ -64,8 +65,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      // Handle edit profile
+                   onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>EditProfileScreen()),
+    );
+  
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFEC407A),

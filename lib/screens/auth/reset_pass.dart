@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:food_recipe/screens/auth/otp.dart';
 import 'package:food_recipe/screens/auth/signin.dart';
 import 'package:food_recipe/screens/widget/background_decoration.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
+
+class ResetPasswordScreen extends StatelessWidget {
+  const ResetPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.lock_reset,
+                          Icons.lock_open,
                           size: 32,
                           color: Color(0xFFE6398C),
                         ),
@@ -56,11 +56,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     
-                    // Forgot Password text
+                    // Reset Password text
                     const Column(
                       children: [
                         Text(
-                          'Forgot Password',
+                          'Reset Password',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
@@ -69,7 +69,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Learn spam asks at email, contactbar',
+                          'Create a new password for your account',
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 14,
@@ -78,24 +78,13 @@ class ForgotPasswordScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    
-                    // Lorem ipsum text
-                    const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                      'Maecenas ipsum dolor sit amet, consectetur adipiscing.',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
                     const SizedBox(height: 30),
                     
-                    // Email field
+                    // New Password field
                     const TextField(
+                      obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'New Password',
                         labelStyle: TextStyle(color: Color(0xFF555555)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -105,19 +94,39 @@ class ForgotPasswordScreen extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           borderSide: BorderSide(color: Color(0xFFE6398C)),
                         ),
-                        prefixIcon: Icon(Icons.email, color: Color(0xFFE6398C)),
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFFE6398C)),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Confirm New Password field
+                    const TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm New Password',
+                        labelStyle: TextStyle(color: Color(0xFF555555)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Color(0xFFE6398C)),
+                        ),
+                        prefixIcon: Icon(Icons.lock_outline, color: Color(0xFFE6398C)),
                       ),
                     ),
                     const SizedBox(height: 30),
                     
-                    // Send button
+                    // Reset Password button
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).push(
+                        // Reset password logic here
+                        Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => const OtpScreen(),
+                            pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
                             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(0.0, 1.0);
+                              const begin = Offset(-1.0, 0.0);
                               const end = Offset.zero;
                               const curve = Curves.ease;
                               
@@ -143,7 +152,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                         shadowColor: const Color(0xFFE6398C).withOpacity(0.3),
                       ),
                       child: const Text(
-                        'Send',
+                        'Reset Password',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -157,7 +166,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Have an account? ",
+                          "Remember password? ",
                           style: TextStyle(color: Colors.grey),
                         ),
                         GestureDetector(
