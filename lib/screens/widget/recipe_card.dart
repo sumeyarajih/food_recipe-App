@@ -233,17 +233,17 @@ class _RecipeCardState extends State<RecipeCard> {
                         );
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(const Color(0xFFEC407A)),
-                        foregroundColor: MaterialStateProperty.all(Colors.white),
-                        shape: MaterialStateProperty.all(
+                        backgroundColor: WidgetStateProperty.all(const Color(0xFFEC407A)),
+                        foregroundColor: WidgetStateProperty.all(Colors.white),
+                        shape: WidgetStateProperty.all(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        padding: MaterialStateProperty.all(
+                        padding: WidgetStateProperty.all(
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
-                        elevation: MaterialStateProperty.all(2),
+                        elevation: WidgetStateProperty.all(2),
                       ),
                       child: const Text(
                         'View Recipe',
