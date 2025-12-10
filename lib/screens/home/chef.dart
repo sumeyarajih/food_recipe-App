@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/profile/view_profile_chef.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 
@@ -236,9 +237,12 @@ class _ChefCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton(
-                    onPressed: () {
-                      // Navigate to chef's profile
-                    },
+                   onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ViewChefProfilePage(chefId: chef.bio, chefName: chef.name, chefUsername: chef.username, chefImage: chef.image)),
+    );
+                   },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black,
                       textStyle: const TextStyle(

@@ -339,12 +339,11 @@ import 'package:food_recipe/screens/widget/recipe_card.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 import 'package:food_recipe/model/recipe_model.dart';
 
-// Add these imports if they don't exist
-// If Recipe class and enum are defined elsewhere, make sure to import them
+
 
 // Recipe class moved to models/recipe_model.dart
 
-// Add your recipeJsonList here or import it
+//////////////////////////////////////////////////////////////////////////// Add your recipeJsonList here or import it
 final List<Map<String, dynamic>> recipeJsonList = [
   // Your recipe data here
   {
@@ -523,7 +522,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         TextSpan(
-                          text: 'name',
+                          text: 'Name',
                           style: TextStyle(
                             fontSize: isSmallScreen ? 24 : 28,
                             fontWeight: FontWeight.w700,
@@ -812,7 +811,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 64),
           ],
         ),
       ),

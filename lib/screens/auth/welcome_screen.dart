@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          'Legin',
+                          'Log in',
                           style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,

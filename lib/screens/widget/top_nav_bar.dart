@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/Notification/notification.dart';
+import 'package:food_recipe/screens/profile/profile.dart';
 
 class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onProfilePressed;
@@ -50,23 +51,51 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               
-              // Profile circle avatar
-              GestureDetector(
-                onTap: onProfilePressed ?? () {},
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: Colors.black, // Black icon
-                    size: 20,
-                  ),
-                ),
-              ),
+              // Profile circle avatar with menu
+PopupMenuButton<String>(
+  icon: Container(
+    width: 36,
+    height: 36,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+    ),
+    child: const Icon(
+      Icons.person_outline,
+      color: Colors.black,
+      size: 20,
+    ),
+  ),
+  onSelected: (value) {
+    if (value == 'profile') {
+      // Navigate to ProfilePage
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    } else if (value == 'logout') {
+      // Handle logout logic
+      print("User logged out");
+    }
+  },
+  itemBuilder: (BuildContext context) => [
+    const PopupMenuItem(
+      value: 'profile',
+      child: ListTile(
+        leading: Icon(Icons.person),
+        title: Text('Profile'),
+      ),
+    ),
+    const PopupMenuItem(
+      value: 'logout',
+      child: ListTile(
+        leading: Icon(Icons.logout),
+        title: Text('Logout'),
+      ),
+    ),
+  ],
+),
+
             ],
           ),
         ],

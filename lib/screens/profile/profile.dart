@@ -11,14 +11,11 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isDarkMode = true;
   int _selectedTab = 0; // 0 = My Recipes, 1 = Liked, 2 = Chefs
   int _currentBottomNavIndex = 4; // Assuming profile is index 4 in bottom nav
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 247, 230, 235),

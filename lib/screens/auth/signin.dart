@@ -47,7 +47,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          'Legin',
+                          'L0g in',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,

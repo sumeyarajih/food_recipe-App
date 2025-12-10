@@ -95,7 +95,6 @@ class RecipeSearchDelegate extends SearchDelegate<Recipe?> {
     );
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // Apply the BackgroundDecoration to the entire Scaffold
