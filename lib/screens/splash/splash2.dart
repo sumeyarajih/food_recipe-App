@@ -10,7 +10,6 @@ class Splash2 extends StatefulWidget {
 
 class _Splash2State extends State<Splash2> {
   final Color _pinkColor = const Color(0xFFEC407A);
-  final Color _bgColor = const Color.fromARGB(255, 247, 230, 235);
   bool _showButton = false;
 
   @override
@@ -29,7 +28,12 @@ class _Splash2State extends State<Splash2> {
 
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const WelcomeScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
     );
   }
 
@@ -39,18 +43,30 @@ class _Splash2State extends State<Splash2> {
     final isSmallScreen = screenHeight < 600;
 
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: _pinkColor, // Pink background to match end of Splash1
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // App logo - natural image without tint or background
+                // App logo 
                 Container(
                   height: isSmallScreen ? screenHeight * 0.2 : 150,
                   width: isSmallScreen ? screenHeight * 0.2 : 150,
                   margin: EdgeInsets.only(bottom: screenHeight * 0.04),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(20),
                   child: Image.asset(
                     'assets/images/food_logo.png',
                     fit: BoxFit.contain,
@@ -61,13 +77,15 @@ class _Splash2State extends State<Splash2> {
                 Text(
                   'Tasty Bites',
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 28 : 32,
+                    fontFamily: 'PlayfairDisplay',
+                    fontSize: isSmallScreen ? 32 : 40,
                     fontWeight: FontWeight.bold,
-                    color: _pinkColor,
+                    color: Colors.white, // White text on Pink bg
+                    letterSpacing: 1.2,
                     shadows: [
                       Shadow(
                         blurRadius: 8,
-                        color: _pinkColor.withOpacity(0.3),
+                        color: Colors.black.withOpacity(0.1),
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -86,7 +104,8 @@ class _Splash2State extends State<Splash2> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: isSmallScreen ? 16 : 18,
-                      color: Colors.grey[700],
+                      color: Colors.white.withOpacity(0.9), // White text
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ),
@@ -100,7 +119,8 @@ class _Splash2State extends State<Splash2> {
                     child: ElevatedButton(
                       onPressed: _navigateToHome,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _pinkColor,
+                        backgroundColor: Colors.white, // White button
+                        foregroundColor: _pinkColor,   // Pink text
                         padding: EdgeInsets.symmetric(
                           vertical: isSmallScreen ? 12 : 15,
                           horizontal: isSmallScreen ? 20 : 30,
@@ -108,14 +128,14 @@ class _Splash2State extends State<Splash2> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        elevation: 3,
+                        elevation: 4,
                       ),
                       child: Text(
                         'Continue',
                         style: TextStyle(
                           fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: _pinkColor,
                         ),
                       ),
                     ),
@@ -125,7 +145,7 @@ class _Splash2State extends State<Splash2> {
                     width: isSmallScreen ? 40 : 50,
                     height: isSmallScreen ? 40 : 50,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(_pinkColor),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                       strokeWidth: 3,
                     ),
                   ),
@@ -137,3 +157,4 @@ class _Splash2State extends State<Splash2> {
     );
   }
 }
+

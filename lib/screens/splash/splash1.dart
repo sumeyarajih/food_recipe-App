@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/splash/splash2.dart';
 
@@ -9,147 +11,163 @@ class Splash1 extends StatefulWidget {
 }
 
 class _Splash1State extends State<Splash1> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late List<Animation<double>> _letterAnimations;
-  final String _appName = "Tasty Bites";
+  // Animation state
+  late AnimationController _revealController;
+  
+  // Typewriter state
+  String _displayedText = "";
+  final String _fullText = "Tasty Bites";
+  int _currentIndex = 0;
+  Timer? _typewriterTimer;
+
+  // Colors
   final Color _pinkColor = const Color(0xFFEC407A);
-  final Color _bgColor = const Color.fromARGB(255, 247, 230, 235);
 
   @override
   void initState() {
     super.initState();
-    
-    _controller = AnimationController(
+
+    // Initialize circular reveal controller
+    _revealController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(seconds: 1), 
     );
 
-    _letterAnimations = List.generate(
-      _appName.length,
-      (index) => Tween<double>(begin: -50.0, end: 0.0).animate(
-        CurvedAnimation(
-          parent: _controller,
-          curve: Interval(
-            0.1 * index,
-            0.1 * index + 0.5,
-            curve: Curves.elasticOut,
-          ),
-        ),
+    // Prepare radius animation (will be initialized properly in build with screen size, 
+    // but we can set up the listener structure here or defer start)
+    
+    // Sequence: 
+    // 1. Start Typewriter immediately
+    // 2. Once typing finishes, Start Reveal
+    // 3. Navigate
+    
+    _startTypewriter();
+  }
+
+  void _startTypewriter() {
+    // Slight initial delay
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _typewriterTimer = Timer.periodic(const Duration(milliseconds: 150), (timer) {
+        if (_currentIndex < _fullText.length) {
+          if (mounted) {
+            setState(() {
+              _displayedText += _fullText[_currentIndex];
+              _currentIndex++;
+            });
+          }
+        } else {
+          timer.cancel();
+          // Text finished, waiting a beat then starting reveal
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              _revealController.forward().then((_) {
+                 // Animation done, navigate
+                 _navigateToNext();
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  void _navigateToNext() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const Splash2(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 600),
       ),
     );
-
-    _controller.forward();
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const Splash2()),
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _typewriterTimer?.cancel();
+    _revealController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenHeight < 600;
+    final screenSize = MediaQuery.of(context).size;
+    // Calculate max radius to cover the screen from center
+    final double maxRadius = math.sqrt(math.pow(screenSize.width, 2) + math.pow(screenSize.height, 2));
 
     return Scaffold(
-      backgroundColor: _bgColor,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Animated letters - responsive sizing
-                SizedBox(
-                  height: screenHeight * 0.2,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _appName.length,
-                        (index) => AnimatedBuilder(
-                          animation: _letterAnimations[index],
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(0, _letterAnimations[index].value),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.01,
-                                ),
-                                child: Text(
-                                  _appName[index],
-                                  style: TextStyle(
-                                    fontSize: isSmallScreen ? 32 : 42,
-                                    fontWeight: FontWeight.bold,
-                                    color: _pinkColor,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 8,
-                                        color: _pinkColor.withOpacity(0.3),
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: screenHeight * 0.05),
-                
-                // Responsive loading indicator
-                SizedBox(
-                  width: isSmallScreen ? 40 : 50,
-                  height: isSmallScreen ? 40 : 50,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(_pinkColor),
-                    strokeWidth: 3,
-                  ),
-                ),
-                
-                SizedBox(height: screenHeight * 0.03),
-                
-                // Responsive subtitle
-                AnimatedOpacity(
-                  opacity: _controller.isCompleted ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 500),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.1,
-                    ),
-                    child: Text(
-                      'Discover Delicious Recipes',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: isSmallScreen ? 16 : 18,
-                        color: _pinkColor.withOpacity(0.8),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Layer 1: Base State (White Background, Pink Text)
+          Container(
+            color: Colors.white,
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: _buildTypewriterText(color: _pinkColor),
             ),
           ),
-        ),
+
+          // Layer 2: Reveal State (Pink Background, White Text)
+          // Clipped by the expanding circle
+          AnimatedBuilder(
+            animation: _revealController,
+            builder: (context, child) {
+              return ClipPath(
+                clipper: CircleRevealClipper(
+                  radius: _revealController.value * maxRadius,
+                ),
+                child: Container(
+                  color: _pinkColor,
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: _buildTypewriterText(color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildTypewriterText({required Color color}) {
+    return Text(
+      _displayedText,
+      key: ValueKey<String>(_displayedText), // Helps consistency
+      style: TextStyle(
+        fontFamily: 'PlayfairDisplay', 
+        fontSize: 48,
+        fontWeight: FontWeight.bold,
+        color: color,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+}
+
+class CircleRevealClipper extends CustomClipper<Path> {
+  final double radius;
+
+  CircleRevealClipper({required this.radius});
+
+  @override
+  Path getClip(Size size) {
+    if (radius <= 0) return Path(); // Nothing revealed yet
+    
+    final Path path = Path();
+    path.addOval(Rect.fromCircle(
+      center: Offset(size.width / 2, size.height / 2),
+      radius: radius,
+    ));
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CircleRevealClipper oldClipper) {
+    return oldClipper.radius != radius;
   }
 }

@@ -1,22 +1,35 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 
 class CreateRecipeScreen extends StatefulWidget {
+  const CreateRecipeScreen({super.key});
+
   @override
   _CreateRecipeScreenState createState() => _CreateRecipeScreenState();
 }
 
 class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
-  final Color _pinkColor = Color(0xFFEC407A);
-  final Color _whiteColor = Color(0xFFFFFFFF);
+  final Color _pinkColor = const Color(0xFFEC407A);
+  final Color _whiteColor = const Color(0xFFFFFFFF);
+
+  // Media
+  File? _mediaFile;
+  bool _isVideo = false;
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
+  final ImagePicker _picker = ImagePicker();
 
   // Recipe fields
   // ignore: unused_field
   String _title = '';
-  List<String> _ingredients = [''];
-  List<String> _steps = [''];
+  final List<String> _ingredients = [''];
+  final List<String> _steps = [''];
   int _prepTime = 15;
   int _cookTime = 30;
   int _serving = 2;
@@ -28,6 +41,63 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     'Breakfast', 'Lunch', 'Dinner', 
     'Dessert', 'Vegan', 'Keto'
   ];
+
+  @override
+  void dispose() {
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickMedia({required bool isVideo}) async {
+    final XFile? pickedFile = await _picker.pickMedia();
+    
+    if (pickedFile != null) {
+      if (_isVideo) {
+        _videoPlayerController?.dispose();
+        _chewieController?.dispose();
+      }
+
+      setState(() {
+        _mediaFile = File(pickedFile.path);
+        // rudimentary check, ideally check mime type or extension
+        _isVideo = pickedFile.path.toLowerCase().endsWith('.mp4') || 
+                   pickedFile.path.toLowerCase().endsWith('.mov') ||
+                   isVideo; 
+      });
+
+      if (_isVideo) {
+        _initializeVideoPlayer();
+      }
+    }
+  }
+
+  void _initializeVideoPlayer() async {
+    if (_mediaFile == null) return;
+    _videoPlayerController = VideoPlayerController.file(_mediaFile!);
+    await _videoPlayerController!.initialize();
+    
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController!,
+      autoPlay: false,
+      looping: false,
+      aspectRatio: _videoPlayerController!.value.aspectRatio,
+      placeholder: Container(color: Colors.black),
+      autoInitialize: true,
+    );
+    setState(() {});
+  }
+
+  void _removeMedia() {
+    setState(() {
+      _mediaFile = null;
+      _isVideo = false;
+      _videoPlayerController?.dispose();
+      _chewieController?.dispose();
+      _videoPlayerController = null;
+      _chewieController = null;
+    });
+  }
 
   void _addIngredient() {
     setState(() {
@@ -49,176 +119,169 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   }
 
   void _showConfirmationDialog() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.all(isSmallScreen ? 20 : 25),
-            decoration: BoxDecoration(
-              color: _whiteColor,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 5,
-                ),
-              ],
+        return AlertDialog(
+          title: Text('Publish Recipe?', style: TextStyle(color: _pinkColor)),
+          content: const Text('Are you sure you want to publish this recipe?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.help_outline,
-                  size: 60,
-                  color: _pinkColor,
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Confirm Recipe Publication',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 18 : 22,
-                    fontWeight: FontWeight.bold,
-                    color: _pinkColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 15),
-                Text(
-                  'Are you sure you want to publish this recipe?',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
-                    color: Colors.grey[700],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          side: BorderSide(color: _pinkColor),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: _pinkColor,
-                            fontSize: isSmallScreen ? 14 : 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 15),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _showSuccessDialog();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _pinkColor,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Publish',
-                          style: TextStyle(
-                            color: _whiteColor,
-                            fontSize: isSmallScreen ? 14 : 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Close confirmation
+                _showSuccessModal(); // Show premium success modal
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: _pinkColor),
+              child: const Text('Publish', style: TextStyle(color: Colors.white)),
             ),
-          ),
+          ],
         );
       },
     );
   }
 
-  void _showSuccessDialog() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
-    showDialog(
+  void _showSuccessModal() {
+    showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        Future.delayed(Duration(milliseconds: 1500), () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop(); // Also pop the CreateRecipeScreen
-        });
-
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+      barrierLabel: 'Success',
+      transitionDuration: const Duration(milliseconds: 500),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Scaffold(
+          backgroundColor: Colors.black.withOpacity(0.8), // Dimmed background like TikTok
+          body: Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.85,
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                   BoxShadow(
+                    color: _pinkColor.withOpacity(0.4),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Animated Icon Placeholder (Scale Transition)
+                  ScaleTransition(
+                    scale: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.elasticOut,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: _pinkColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_rounded,
+                        size: 60,
+                        color: _pinkColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.5),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: Column(
+                      children: [
+                         Text(
+                          'Published!',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Your recipe is now live and ready to inspire others!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Buttons
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to view recipe or home
+                          Navigator.of(context).pop(); 
+                          Navigator.of(context).pop(); // Go back to previous screen
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _pinkColor,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'View Recipe',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () {
+                           Navigator.of(context).pop();
+                           Navigator.of(context).pop(); 
+                        },
+                        child: Text(
+                          'Back to Home',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.all(isSmallScreen ? 20 : 25),
-            decoration: BoxDecoration(
-              color: _whiteColor,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 5,
-                ),
-              ],
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutBack,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  size: 60,
-                  color: Colors.green,
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Recipe Published!',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 18 : 22,
-                    fontWeight: FontWeight.bold,
-                    color: _pinkColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 15),
-                Text(
-                  'Your recipe has been successfully published.',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16,
-                    color: Colors.grey[700],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
+            child: child,
           ),
         );
       },
@@ -232,7 +295,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
     return Scaffold(
       backgroundColor: _whiteColor,
-      appBar: TopNavBar(), // Using your TopNavBar component
+      appBar: const TopNavBar(),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(isSmallScreen ? 12 : 24),
         child: Form(
@@ -240,222 +303,223 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Media Picker Section (TikTok Style)
+              _buildMediaPicker(),
+              const SizedBox(height: 24),
+
               // Recipe Title
               _buildSectionTitle('Recipe Title'),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Enter recipe name',
+                  hintText: 'Give your dish a catchy name...',
+                  fillColor: Colors.grey[50],
+                  filled: true,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _pinkColor),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _pinkColor, width: 2),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: _pinkColor, width: 1.5),
                   ),
+                  prefixIcon: Icon(Icons.restaurant_menu, color: _pinkColor),
                 ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
                 validator: (value) => value!.isEmpty ? 'Required' : null,
                 onSaved: (value) => _title = value!,
               ),
-              SizedBox(height: isSmallScreen ? 16 : 24),
+              SizedBox(height: isSmallScreen ? 20 : 24),
 
-              // Recipe Details Row - Responsive layout
-              if (isSmallScreen) ...[
-                // Mobile layout - vertical
-                _buildTimeInput('Prep (min)', _prepTime, (value) {
-                  setState(() => _prepTime = value);
-                }),
-                SizedBox(height: 16),
-                _buildTimeInput('Cook (min)', _cookTime, (value) {
-                  setState(() => _cookTime = value);
-                }),
-                SizedBox(height: 16),
-                _buildTimeInput('Servings', _serving, (value) {
-                  setState(() => _serving = value);
-                }),
-              ] else ...[
-                // Desktop/tablet layout - horizontal
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTimeInput('Prep (min)', _prepTime, (value) {
-                        setState(() => _prepTime = value);
-                      }),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: _buildTimeInput('Cook (min)', _cookTime, (value) {
-                        setState(() => _cookTime = value);
-                      }),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: _buildTimeInput('Servings', _serving, (value) {
-                        setState(() => _serving = value);
-                      }),
-                    ),
-                  ],
-                ),
-              ],
-              SizedBox(height: isSmallScreen ? 16 : 24),
+              // Time & Servings Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTimeInput('Prep', _prepTime, (val) => setState(() => _prepTime = val), Icons.timer_outlined),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildTimeInput('Cook', _cookTime, (val) => setState(() => _cookTime = val), Icons.outdoor_grill_outlined),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildTimeInput('Serves', _serving, (val) => setState(() => _serving = val), Icons.people_outline),
+                  ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 20 : 24),
 
-              // Difficulty & Category - Responsive layout
-              if (isSmallScreen) ...[
-                // Mobile layout - vertical
-                Column(
-                  children: [
-                    _buildDropdownSection(
+              // Difficulty & Category
+               Row(
+                children: [
+                  Expanded(
+                    child: _buildDropdownSection(
                       'Difficulty', 
                       _difficulty, 
                       _difficultyLevels, 
-                      (value) => setState(() => _difficulty = value.toString())
+                      (value) => setState(() => _difficulty = value.toString()),
+                      Icons.bar_chart,
                     ),
-                    SizedBox(height: 16),
-                    _buildDropdownSection(
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDropdownSection(
                       'Category', 
                       _category, 
                       _categories, 
-                      (value) => setState(() => _category = value.toString())
+                      (value) => setState(() => _category = value.toString()),
+                      Icons.category_outlined,
                     ),
-                  ],
-                ),
-              ] else ...[
-                // Desktop/tablet layout - horizontal
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDropdownSection(
-                        'Difficulty', 
-                        _difficulty, 
-                        _difficultyLevels, 
-                        (value) => setState(() => _difficulty = value.toString())
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: _buildDropdownSection(
-                        'Category', 
-                        _category, 
-                        _categories, 
-                        (value) => setState(() => _category = value.toString())
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              SizedBox(height: isSmallScreen ? 16 : 24),
+                  ),
+                ],
+              ),
+              SizedBox(height: isSmallScreen ? 20 : 24),
 
               // Ingredients
-              _buildSectionTitle('Ingredients'),
+              _buildSectionHeader('Ingredients', Icons.shopping_basket_outlined, _addIngredient),
+              const SizedBox(height: 8),
               ..._ingredients.asMap().entries.map((entry) {
                 int idx = entry.key;
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: Row(
                     children: [
+                      Container(
+                        width: 8, height: 8,
+                        decoration: BoxDecoration(color: _pinkColor, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: TextFormField(
+                          initialValue: _ingredients[idx],
                           decoration: InputDecoration(
-                            hintText: 'Ingredient ${idx + 1}',
-                            prefixIcon: Icon(Icons.circle, size: 8, color: _pinkColor),
+                            hintText: 'e.g. 2 cups of flour',
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
                             ),
                           ),
                           onChanged: (value) => _ingredients[idx] = value,
                         ),
                       ),
-                      if (idx == _ingredients.length - 1)
+                      if (_ingredients.length > 1)
                         IconButton(
-                          icon: Icon(Icons.add_circle, color: _pinkColor),
-                          onPressed: _addIngredient,
+                          icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                          onPressed: () {
+                             setState(() {
+                               _ingredients.removeAt(idx);
+                             });
+                          },
                         ),
                     ],
                   ),
                 );
               }).toList(),
-              SizedBox(height: isSmallScreen ? 12 : 16),
+              const SizedBox(height: 24),
 
               // Steps
-              _buildSectionTitle('Steps'),
+              _buildSectionHeader('Instructions', Icons.format_list_numbered, _addStep),
+               const SizedBox(height: 8),
               ..._steps.asMap().entries.map((entry) {
                 int idx = entry.key;
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 12, right: 8),
-                        width: 24,
-                        height: 24,
+                        margin: const EdgeInsets.only(top: 4, right: 12),
+                        width: 28,
+                        height: 28,
                         decoration: BoxDecoration(
-                          color: _pinkColor,
-                          shape: BoxShape.circle,
+                          color: _pinkColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: _pinkColor.withOpacity(0.5)),
                         ),
                         child: Center(
                           child: Text(
                             '${idx + 1}',
-                            style: TextStyle(color: _whiteColor, fontSize: 12),
+                            style: TextStyle(color: _pinkColor, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                       Expanded(
                         child: TextFormField(
+                          initialValue: _steps[idx],
                           decoration: InputDecoration(
-                            hintText: 'Describe step ${idx + 1}',
+                            hintText: 'Describe this step...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
                             ),
+                            filled: true,
+                            fillColor: Colors.white,
                           ),
                           maxLines: 3,
                           onChanged: (value) => _steps[idx] = value,
                         ),
                       ),
-                      if (idx == _steps.length - 1)
-                        Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: IconButton(
-                            icon: Icon(Icons.add_circle, color: _pinkColor),
-                            onPressed: _addStep,
-                          ),
+                       if (_steps.length > 1)
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                          onPressed: () {
+                             setState(() {
+                               _steps.removeAt(idx);
+                             });
+                          },
                         ),
                     ],
                   ),
                 );
               }).toList(),
-              SizedBox(height: isSmallScreen ? 24 : 32),
+              const SizedBox(height: 40),
 
-              // Submit Button
-              Center(
+              // Publish Button
+              Container(
+                width: double.infinity,
+                height: 55,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _pinkColor.withOpacity(0.4),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    colors: [_pinkColor, _pinkColor.withOpacity(0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
                 child: ElevatedButton(
                   onPressed: _submitRecipe,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _pinkColor,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? 30 : 40, 
-                      vertical: isSmallScreen ? 12 : 16
-                    ),
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(100),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Publish Recipe',
                     style: TextStyle(
-                      color: _whiteColor,
-                      fontSize: isSmallScreen ? 16 : 18,
+                      color: Colors.white,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: isSmallScreen ? 16 : 24),
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Container(
+       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: Colors.grey, width: 0.2),
@@ -472,47 +536,163 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: _pinkColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
+  Widget _buildMediaPicker() {
+    return GestureDetector(
+      onTap: () => _pickMedia(isVideo: true), // Default generic picker
+      child: Container(
+        height: 250,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
         ),
+        child: _mediaFile != null
+            ? Stack(
+                children: [
+                   ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: _isVideo && _chewieController != null
+                        ? Chewie(controller: _chewieController!)
+                        : Image.file(
+                            _mediaFile!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: GestureDetector(
+                      onTap: _removeMedia,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _pinkColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.add_a_photo, size: 40, color: _pinkColor),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Add Photo or Video',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Showcase your delicious creation',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
 
-  Widget _buildTimeInput(String label, int value, Function(int) onChanged) {
+  Widget _buildSectionHeader(String title, IconData icon, VoidCallback onAdd) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildSectionTitle(title, icon: icon),
+        TextButton.icon(
+          onPressed: onAdd,
+          icon: Icon(Icons.add, size: 18, color: _pinkColor),
+          label: Text('Add', style: TextStyle(color: _pinkColor, fontWeight: FontWeight.bold)),
+          style: TextButton.styleFrom(
+            backgroundColor: _pinkColor.withOpacity(0.1),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title, {IconData? icon}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: _pinkColor),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeInput(String label, int value, Function(int) onChanged, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(label),
+         Padding(
+           padding: const EdgeInsets.only(bottom: 8),
+           child: Text(label, style: TextStyle(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.bold)),
+         ),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
           ),
-          child: Row(
+          child: Column(
             children: [
-              IconButton(
-                icon: Icon(Icons.remove, color: _pinkColor),
-                onPressed: () => onChanged(value > 1 ? value - 1 : 1),
+              Icon(icon, size: 20, color: Colors.grey[400]),
+              const SizedBox(height: 4),
+              Text(
+                '$value',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              Expanded(
-                child: Text(
-                  '$value',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.add, color: _pinkColor),
-                onPressed: () => onChanged(value + 1),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () => onChanged(value > 1 ? value - 1 : 1),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(Icons.remove_circle_outline, size: 20, color: Colors.grey[400]),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => onChanged(value + 1),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(Icons.add_circle, size: 20, color: _pinkColor),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -525,26 +705,42 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     String title, 
     String value, 
     List<String> items, 
-    Function(dynamic) onChanged
+    Function(dynamic) onChanged,
+    IconData icon
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(title),
-        DropdownButtonFormField(
-          value: value,
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: _pinkColor),
+        Padding(
+           padding: const EdgeInsets.only(bottom: 8),
+           child: Text(title, style: TextStyle(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.bold)),
+         ),
+        ButtonTheme(
+          alignedDropdown: true,
+          child: DropdownButtonFormField(
+            value: value,
+            items: items.map((item) {
+              return DropdownMenuItem(
+                value: item,
+                child: Text(item, style: const TextStyle(fontSize: 14)),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+              prefixIcon: Icon(icon, color: _pinkColor, size: 20),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
             ),
+            icon: const Icon(Icons.keyboard_arrow_down, size: 20),
           ),
         ),
       ],

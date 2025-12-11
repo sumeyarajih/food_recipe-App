@@ -77,6 +77,7 @@ class _RecipeCardState extends State<RecipeCard> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // FIX 1: Changed to min to prevent expansion
         children: [
           Stack(
             children: [
@@ -121,141 +122,165 @@ class _RecipeCardState extends State<RecipeCard> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    ...List.generate(5, (index) => Icon(
-                      index < widget.rating ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFEC407A),
-                      size: 16,
-                    )),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${widget.reviewCount})',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
+          
+          // FIX 2: Wrapped content in IntrinsicHeight to prevent overflow
+          IntrinsicHeight(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      ...List.generate(5, (index) => Icon(
+                        index < widget.rating.floor() ? Icons.star : Icons.star_border,
+                        color: const Color(0xFFEC407A),
+                        size: 16,
+                      )),
+                      const SizedBox(width: 4),
+                      Text(
+                        '(${widget.reviewCount})',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: _handleLike,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (_showLikeAnimation)
-                              const Icon(
-                                Icons.favorite,
-                                color: Color(0xFFEC407A),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: _handleLike,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_showLikeAnimation)
+                                const Icon(
+                                  Icons.favorite,
+                                  color: Color(0xFFEC407A),
+                                  size: 24,
+                                ),
+                              Icon(
+                                _isLiked ? Icons.favorite : Icons.favorite_border,
+                                color: _isLiked ? const Color(0xFFEC407A) : Colors.black87,
                                 size: 24,
                               ),
-                            Icon(
-                              _isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: _isLiked ? const Color(0xFFEC407A) : Colors.black87,
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.description,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color(0xFFEC407A),
-                          width: 2,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 12,
-                        color: Color(0xFFEC407A),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.chefName,
-                      style: const TextStyle(
-                        color: Color(0xFFEC407A),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RecipeDetailPage(
-                              recipeName: widget.title,
-                              chefName: widget.chefName,
-                              rating: widget.rating.toDouble(),
-                              commentCount: widget.reviewCount,
-                              preparationTime: int.tryParse(widget.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-                              difficulty: 'Medium', // You might want to add this to your RecipeCard parameters
-                              servings: 4, // You might want to add this to your RecipeCard parameters
-                              likeCount: 0, // You might want to add this to your RecipeCard parameters
-                              isShared: false, imageUrl: '', // You might want to add this to your RecipeCard parameters
-                            ),
-                          ),
-                        );
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(const Color(0xFFEC407A)),
-                        foregroundColor: WidgetStateProperty.all(Colors.white),
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            ],
                           ),
                         ),
-                        padding: WidgetStateProperty.all(
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                        elevation: WidgetStateProperty.all(2),
                       ),
-                      child: const Text(
-                        'View Recipe',
-                        style: TextStyle(
-                          fontSize: 14,
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // FIX 3: Wrapped title and description in Flexible to prevent overflow
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.description,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // FIX 4: Added bottom padding to the button row
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0), // Extra bottom padding
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFEC407A),
+                              width: 2,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 12,
+                            color: Color(0xFFEC407A),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded( // FIX 5: Wrapped text in Expanded
+                          child: Text(
+                            widget.chefName,
+                            style: const TextStyle(
+                              color: Color(0xFFEC407A),
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RecipeDetailPage(
+                                  recipeName: widget.title,
+                                  chefName: widget.chefName,
+                                  rating: widget.rating.toDouble(),
+                                  commentCount: widget.reviewCount,
+                                  preparationTime: int.tryParse(widget.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                                  difficulty: 'Medium',
+                                  servings: 4,
+                                  likeCount: 0,
+                                  isShared: false, 
+                                  imageUrl: widget.imageUrl, // Fixed: use actual imageUrl
+                                ),
+                              ),
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(const Color(0xFFEC407A)),
+                            foregroundColor: WidgetStateProperty.all(Colors.white),
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            elevation: WidgetStateProperty.all(2),
+                          ),
+                          child: const Text(
+                            'View Recipe',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
