@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/widget/background_decoration.dart';
-import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -23,14 +22,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _backgroundColor,
-       appBar: const TopNavBar(
+      appBar: AppBar(
+        backgroundColor: _backgroundColor,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: _pinkColor),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'Notifications',
+          style: TextStyle(
+            color: _pinkColor,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Stack(
         children: [
           const BackgroundDecoration(),
           Column(
             children: [
-              
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
@@ -238,7 +253,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       {
         'icon': Icons.email,
         'title': 'Welcome Email',
-        'message': 'Welcome to Legin! Confirm your email address',
+        'message': 'Welcome to Login! Confirm your email address',
         'time': '1 hour ago',
         'isUnread': false,
         'color': _pinkColor,

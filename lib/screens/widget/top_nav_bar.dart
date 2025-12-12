@@ -18,6 +18,7 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: false, // Remove automatic back arrow
       backgroundColor: const Color(0xFFEC407A), // Pink background
       elevation: 0,
       title: Row(

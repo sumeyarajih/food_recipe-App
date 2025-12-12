@@ -124,7 +124,7 @@ class _LoginContentState extends State<LoginContent> {
                   onTap: () {
                     Navigator.of(context).push(
                       PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => ForgetPasswordContent(onSendOtp: () {  }, onSignIn: () {  },),
+                        pageBuilder: (context, animation, secondaryAnimation) => ForgetPasswordContent(onSendOtp: () {  },),
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {
                           const begin = Offset(1.0, 0.0);
                           const end = Offset.zero;
