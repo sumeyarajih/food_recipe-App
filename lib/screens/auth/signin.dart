@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/auth/forget_pas.dart';
 import 'package:food_recipe/screens/home/home.dart';
 
-class LoginContent extends StatelessWidget {
+class LoginContent extends StatefulWidget {
   final VoidCallback onToggleSignUp;
 
   const LoginContent({super.key, required this.onToggleSignUp});
+
+  @override
+  State<LoginContent> createState() => _LoginContentState();
+}
+
+class _LoginContentState extends State<LoginContent> {
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +58,7 @@ class LoginContent extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Sign in to continue exploring your message.',
+                    'Sign in to continue.',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -80,21 +87,32 @@ class LoginContent extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               
-              // Password field
-              const TextField(
-                obscureText: true,
+              // Password field with eye icon
+              TextField(
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: Color(0xFF555555)),
-                  border: OutlineInputBorder(
+                  labelStyle: const TextStyle(color: Color(0xFF555555)),
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Color(0xFFE6398C)),
                   ),
-                  prefixIcon: Icon(Icons.lock, color: Color(0xFFE6398C)),
+                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFE6398C)),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: const Color(0xFFE6398C),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -172,7 +190,7 @@ class LoginContent extends StatelessWidget {
                     style: TextStyle(color: Colors.grey),
                   ),
                   GestureDetector(
-                    onTap: onToggleSignUp, // Use callback
+                    onTap: widget.onToggleSignUp, // Use callback
                     child: const Text(
                       'Create account',
                       style: TextStyle(

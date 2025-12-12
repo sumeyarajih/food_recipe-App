@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/auth/otp.dart';
 
-class SignupContent extends StatelessWidget {
+class SignupContent extends StatefulWidget {
   final VoidCallback onToggleSignIn;
 
   const SignupContent({super.key, required this.onToggleSignIn});
+
+  @override
+  State<SignupContent> createState() => _SignupContentState();
+}
+
+class _SignupContentState extends State<SignupContent> {
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +58,7 @@ class SignupContent extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Learn spam asks at email, contactbar',
+                    'create a new account to get started.',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -97,40 +105,62 @@ class SignupContent extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               
-              // Password field
-              const TextField(
-                obscureText: true,
+              // Password field with eye icon
+              TextField(
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: Color(0xFF555555)),
-                  border: OutlineInputBorder(
+                  labelStyle: const TextStyle(color: Color(0xFF555555)),
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Color(0xFFE6398C)),
                   ),
-                  prefixIcon: Icon(Icons.lock, color: Color(0xFFE6398C)),
+                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFE6398C)),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: const Color(0xFFE6398C),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
               
-              // Confirm Password field
-              const TextField(
-                obscureText: true,
+              // Confirm Password field with eye icon
+              TextField(
+                obscureText: _obscureConfirmPassword,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
-                  labelStyle: TextStyle(color: Color(0xFF555555)),
-                  border: OutlineInputBorder(
+                  labelStyle: const TextStyle(color: Color(0xFF555555)),
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Colors.grey),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(color: Color(0xFFE6398C)),
                   ),
-                  prefixIcon: Icon(Icons.lock_outline, color: Color(0xFFE6398C)),
+                  prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFE6398C)),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      color: const Color(0xFFE6398C),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
@@ -186,7 +216,7 @@ class SignupContent extends StatelessWidget {
                     style: TextStyle(color: Colors.grey),
                   ),
                   GestureDetector(
-                    onTap: onToggleSignIn, // Use callback
+                    onTap: widget.onToggleSignIn, // Use callback
                     child: const Text(
                       'Sign in',
                       style: TextStyle(

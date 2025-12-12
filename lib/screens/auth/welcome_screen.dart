@@ -125,7 +125,7 @@ class WelcomeContent extends StatelessWidget {
               const Column(
                 children: [
                   Text(
-                    'Welcome back',
+                    'Welcome ',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -134,7 +134,7 @@ class WelcomeContent extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Sign in to continue exploring your message.',
+                    'Sign in to continue exploring and discovering recipes.',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16,
