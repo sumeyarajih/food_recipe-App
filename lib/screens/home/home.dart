@@ -6,6 +6,8 @@ import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 import 'package:food_recipe/screens/widget/recipe_card.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 import 'package:food_recipe/model/recipe_model.dart';
+import 'package:food_recipe/screens/profile/view_profile_chef.dart';
+
 
 
 
@@ -551,75 +553,90 @@ class ChefCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      margin: const EdgeInsets.only(right: 16),
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewChefProfilePage(
+              chefId: name.hashCode.toString(),
+              chefName: name,
+              chefUsername: '@${name.toLowerCase().replaceAll(' ', '').replaceAll('.', '')}',
+              chefImage: 'https://randomuser.me/api/portraits/women/${name.hashCode % 10}.jpg',
             ),
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.white,
-              child: ClipOval(
-                child: image.isNotEmpty
-                    ? Image.asset(
-                        image,
-                        width: 70,
-                        height: 70,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
+          ),
+        );
+      },
+      child: Container(
+        width: 80,
+        margin: const EdgeInsets.only(right: 16),
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.white,
+                child: ClipOval(
+                  child: image.isNotEmpty
+                      ? Image.asset(
+                          image,
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Color(0xFFEC407A),
+                          ),
+                        )
+                      : const Icon(
                           Icons.person,
                           size: 40,
                           color: Color(0xFFEC407A),
                         ),
-                      )
-                    : Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Color(0xFFEC407A),
-                      ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 2),
                 ),
-              ],
-            ),
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

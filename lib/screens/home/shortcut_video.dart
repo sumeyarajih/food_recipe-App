@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-// REPLACE the old video_player and chewie imports with youtube_player_flutter
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 
 class ShortcutVideoPage extends StatefulWidget {
   const ShortcutVideoPage({Key? key}) : super(key: key);
@@ -10,112 +10,124 @@ class ShortcutVideoPage extends StatefulWidget {
 }
 
 class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
-  // Sample video data - NOW WITH YOUTUBE VIDEO IDs
+  // Sample video data with YouTube video IDs
   final List<VideoItem> _forYouVideos = [
     VideoItem(
       id: '1',
-      // Use YouTube video ID instead of direct URL
-      videoUrl: '907vZOyWTo8', // YouTube video ID (not full URL)
+      videoUrl: '907vZOyWTo8',
       userAvatar: 'https://randomuser.me/api/portraits/women/1.jpg',
       username: 'Chef Maria',
       title: 'Perfect Carbonara Recipe',
-      likes: '2.3k',
-      comments: '156',
-      shares: '45',
+      likes: 2300,
+      comments: 156,
+      shares: 45,
       recipeName: 'Carbonara Pasta',
       cookingTime: '15 min',
       difficulty: 'Easy',
+      isLiked: false,
+      isBookmarked: false,
     ),
     VideoItem(
       id: '2',
-      videoUrl: '3SVi80fjs7U', // Another YouTube video ID
+      videoUrl: '3SVi80fjs7U',
       userAvatar: 'https://randomuser.me/api/portraits/men/2.jpg',
       username: 'Master Chef John',
       title: 'Homemade Pizza from Scratch',
-      likes: '5.1k',
-      comments: '342',
-      shares: '89',
+      likes: 5100,
+      comments: 342,
+      shares: 89,
       recipeName: 'Neapolitan Pizza',
       cookingTime: '2 hours',
       difficulty: 'Medium',
+      isLiked: false,
+      isBookmarked: false,
     ),
     VideoItem(
       id: '3',
-      videoUrl: 'f2qsR2rrl8M', // YouTube video ID
+      videoUrl: 'f2qsR2rrl8M',
       userAvatar: 'https://randomuser.me/api/portraits/women/3.jpg',
       username: 'Vegan Delights',
       title: 'Vegan Buddha Bowl',
-      likes: '1.8k',
-      comments: '98',
-      shares: '32',
+      likes: 1800,
+      comments: 98,
+      shares: 32,
       recipeName: 'Rainbow Buddha Bowl',
       cookingTime: '20 min',
       difficulty: 'Easy',
+      isLiked: false,
+      isBookmarked: false,
     ),
   ];
 
   final List<VideoItem> _followingVideos = [
     VideoItem(
       id: '5',
-      videoUrl: '-BYWbosiYlw', // YouTube video ID
+      videoUrl: '-BYWbosiYlw',
       userAvatar: 'https://randomuser.me/api/portraits/women/5.jpg',
       username: 'Pastry Queen',
       title: 'Chocolate Croissants',
-      likes: '3.7k',
-      comments: '198',
-      shares: '52',
+      likes: 3700,
+      comments: 198,
+      shares: 52,
       recipeName: 'French Croissant',
       cookingTime: '3 hours',
       difficulty: 'Hard',
+      isLiked: false,
+      isBookmarked: false,
     ),
     VideoItem(
       id: '6',
-      videoUrl: 'iLnmTe5Q2Qw', // YouTube video ID
+      videoUrl: 'iLnmTe5Q2Qw',
       userAvatar: 'https://randomuser.me/api/portraits/men/6.jpg',
       username: 'Sushi Master',
       title: 'Authentic Sushi Rolls',
-      likes: '4.9k',
-      comments: '321',
-      shares: '78',
+      likes: 4900,
+      comments: 321,
+      shares: 78,
       recipeName: 'California Roll',
       cookingTime: '40 min',
       difficulty: 'Medium',
+      isLiked: false,
+      isBookmarked: false,
     ),
   ];
 
   final List<VideoItem> _trendingVideos = [
     VideoItem(
       id: '7',
-      videoUrl: 's6zR2T9vn2c', // YouTube video ID
+      videoUrl: 's6zR2T9vn2c',
       userAvatar: 'https://randomuser.me/api/portraits/women/7.jpg',
       username: 'Soup Goddess',
       title: 'Hearty Tomato Soup',
-      likes: '8.2k',
-      comments: '512',
-      shares: '124',
+      likes: 8200,
+      comments: 512,
+      shares: 124,
       recipeName: 'Tomato Basil Soup',
       cookingTime: '30 min',
       difficulty: 'Easy',
+      isLiked: false,
+      isBookmarked: false,
     ),
     VideoItem(
       id: '8',
-      videoUrl: 'dQw4w9WgXcQ', // YouTube video ID
+      videoUrl: 'dQw4w9WgXcQ',
       userAvatar: 'https://randomuser.me/api/portraits/men/8.jpg',
       username: 'Burger Expert',
       title: 'Gourmet Burger',
-      likes: '6.5k',
-      comments: '432',
-      shares: '96',
+      likes: 6500,
+      comments: 432,
+      shares: 96,
       recipeName: 'Double Cheeseburger',
       cookingTime: '25 min',
       difficulty: 'Easy',
+      isLiked: false,
+      isBookmarked: false,
     ),
   ];
 
   final PageController _pageController = PageController();
-  // REPLACE: Change from List<ChewieController?> to List<YoutubePlayerController?>
   final List<YoutubePlayerController?> _youtubeControllers = [];
-  int _currentTab = 0; // 0 = For You, 1 = Following, 2 = Trending
+  int _currentTab = 0;
   List<VideoItem> _currentVideos = [];
 
   @override
@@ -126,18 +138,15 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
   }
 
   void _initializeVideos() {
-    // REPLACE: Clear old controllers and initialize YouTube controllers
     _clearControllers();
     for (var video in _currentVideos) {
-      // Create YouTube player controller for each video[citation:3][citation:4]
       final controller = YoutubePlayerController(
         initialVideoId: video.videoUrl,
         flags: const YoutubePlayerFlags(
           autoPlay: false,
           mute: false,
-          hideControls: true,
-          disableDragSeek: true,
-          enableCaption: false,
+          hideControls: false,
+          controlsVisibleAtStart: true,
         ),
       );
       _youtubeControllers.add(controller);
@@ -146,7 +155,6 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
   }
 
   void _clearControllers() {
-    // REPLACE: Dispose YouTube controllers instead of Chewie controllers
     for (var controller in _youtubeControllers) {
       controller?.dispose();
     }
@@ -158,7 +166,6 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
       _currentTab = tabIndex;
       _pageController.jumpToPage(0);
       
-      // Update current videos based on tab
       switch (tabIndex) {
         case 0:
           _currentVideos = _forYouVideos;
@@ -171,9 +178,81 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
           break;
       }
       
-      // Reinitialize videos for new tab
       _initializeVideos();
     });
+  }
+
+  void _toggleLike(int index) {
+    setState(() {
+      _currentVideos[index].isLiked = !_currentVideos[index].isLiked;
+      if (_currentVideos[index].isLiked) {
+        _currentVideos[index].likes++;
+      } else {
+        _currentVideos[index].likes--;
+      }
+    });
+  }
+
+  void _toggleBookmark(int index) {
+    setState(() {
+      _currentVideos[index].isBookmarked = !_currentVideos[index].isBookmarked;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_currentVideos[index].isBookmarked ? 'Recipe saved!' : 'Recipe removed'),
+        duration: const Duration(seconds: 1),
+        backgroundColor: const Color(0xFFEC407A),
+      ),
+    );
+  }
+
+  void _handleShare(VideoItem video) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Share Recipe',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.link, color: Color(0xFFEC407A)),
+                title: const Text('Copy Link'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Link copied!')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.message, color: Color(0xFFEC407A)),
+                title: const Text('Share via Message'),
+                onTap: () => Navigator.pop(context),
+              ),
+              ListTile(
+                leading: const Icon(Icons.more_horiz, color: Color(0xFFEC407A)),
+                title: const Text('More Options'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -189,13 +268,16 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
+          // Video PageView
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
             itemCount: _currentVideos.length,
             onPageChanged: (index) {
+              setState(() {
+              });
               // Pause previous video
-              if (_youtubeControllers.isNotEmpty && index > 0) {
+              if (_youtubeControllers.isNotEmpty && index > 0 && index - 1 < _youtubeControllers.length) {
                 _youtubeControllers[index - 1]?.pause();
               }
             },
@@ -209,183 +291,138 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
               final video = _currentVideos[index];
               final controller = _youtubeControllers[index]!;
               
-              return Stack(
-                children: [
-                  // REPLACE: YouTube Video Player instead of Chewie
-                  GestureDetector(
-                    onTap: () {
-                      if (controller.value.isPlaying) {
-                        controller.pause();
-                      } else {
-                        controller.play();
-                      }
-                      setState(() {});
-                    },
-                    child: YoutubePlayer(
-                      controller: controller,
-                      progressIndicatorColor: Colors.amber,
-                      progressColors: const ProgressBarColors(
-                        playedColor: Colors.amber,
-                        handleColor: Colors.amberAccent,
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                color: Colors.black,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // YouTube Video Player - Full Screen
+                    Center(
+                      child: AspectRatio(
+                        aspectRatio: 9 / 16,
+                        child: YoutubePlayer(
+                          controller: controller,
+                          progressIndicatorColor: const Color(0xFFEC407A),
+                          progressColors: const ProgressBarColors(
+                            playedColor: Color(0xFFEC407A),
+                            handleColor: Colors.white,
+                          ),
+                        ),
                       ),
-                      onReady: () {
-                        // Video is ready to play
-                      },
-                      onEnded: (metaData) {
-                        // Loop the video by seeking back to start
-                        controller.seekTo(const Duration(seconds: 0));
-                      },
                     ),
-                  ),
 
-                  // Video Info Overlay - UNCHANGED from your original code
-                  Positioned(
-                    bottom: 80,
-                    left: 16,
-                    right: 100,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Username
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundImage: NetworkImage(video.userAvatar),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              video.username,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                shadows: [
-                                  Shadow(
-                                    blurRadius: 4,
-                                    color: Colors.black,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Video Title
-                        Text(
-                          video.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 6,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Recipe Info
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
+                    // Video Info Overlay
+                    Positioned(
+                      bottom: 100,
+                      left: 16,
+                      right: 90,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Username
+                          Row(
                             children: [
-                              _buildInfoChip(Icons.restaurant, video.recipeName),
-                              const SizedBox(width: 12),
-                              _buildInfoChip(Icons.timer, video.cookingTime),
-                              const SizedBox(width: 12),
-                              _buildInfoChip(Icons.star, video.difficulty),
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundImage: NetworkImage(video.userAvatar),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                video.username,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(blurRadius: 4, color: Colors.black),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                          const SizedBox(height: 12),
 
-                  // Right Side Actions - UNCHANGED from your original code
-                  Positioned(
-                    right: 16,
-                    bottom: 80,
-                    child: Column(
-                      children: [
-                        // Like Button
-                        _buildActionButton(
-                          icon: Icons.favorite_border,
-                          label: video.likes,
-                          onTap: () {
-                            // Handle like
-                          },
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Comment Button
-                        _buildActionButton(
-                          icon: Icons.comment,
-                          label: video.comments,
-                          onTap: () {
-                            _showCommentsSheet(context, video);
-                          },
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Share Button
-                        _buildActionButton(
-                          icon: Icons.share,
-                          label: video.shares,
-                          onTap: () {
-                            // Handle share
-                          },
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Bookmark Button
-                        _buildActionButton(
-                          icon: Icons.bookmark_border,
-                          label: 'Save',
-                          onTap: () {
-                            // Handle bookmark
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Play/Pause Indicator - MODIFIED for YouTube controller
-                  if (!controller.value.isPlaying)
-                    Positioned.fill(
-                      child: GestureDetector(
-                        onTap: () {
-                          controller.play();
-                          setState(() {});
-                        },
-                        child: Container(
-                          color: Colors.black38,
-                          child: const Center(
-                            child: Icon(
-                              Icons.play_circle_filled,
-                              size: 80,
+                          // Video Title
+                          Text(
+                            video.title,
+                            style: const TextStyle(
                               color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(blurRadius: 6, color: Colors.black),
+                              ],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Recipe Info
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildInfoChip(Icons.restaurant, video.recipeName),
+                                const SizedBox(width: 12),
+                                _buildInfoChip(Icons.timer, video.cookingTime),
+                                const SizedBox(width: 12),
+                                _buildInfoChip(Icons.star, video.difficulty),
+                              ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                ],
+
+                    // Right Side Actions
+                    Positioned(
+                      right: 8,
+                      bottom: 100,
+                      child: Column(
+                        children: [
+                          // Like Button
+                          _buildActionButton(
+                            icon: video.isLiked ? Icons.favorite : Icons.favorite_border,
+                            label: _formatCount(video.likes),
+                            onTap: () => _toggleLike(index),
+                            isActive: video.isLiked,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Comment Button
+                          _buildActionButton(
+                            icon: Icons.comment,
+                            label: _formatCount(video.comments),
+                            onTap: () => _showCommentsSheet(context, video),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Share Button
+                          _buildActionButton(
+                            icon: Icons.share,
+                            label: _formatCount(video.shares),
+                            onTap: () => _handleShare(video),
+                          ),
+                          const SizedBox(height: 20),
+
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
 
-          // Top Bar with functional tabs - UNCHANGED from your original code
+          // Top Bar with tabs
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 0,
@@ -410,12 +447,25 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
           ),
         ],
       ),
+      bottomNavigationBar: CustomBottomNav(
+        currentIndex: 1,
+        onTabSelected: (index) {
+          // Handle navigation
+        },
+      ),
     );
   }
 
-  // Helper methods - ALL UNCHANGED from your original code
+  String _formatCount(int count) {
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return count.toString();
+  }
+
   Widget _buildInfoChip(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 14, color: Colors.white),
         const SizedBox(width: 4),
@@ -431,6 +481,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    bool isActive = false,
   }) {
     return Column(
       children: [
@@ -443,7 +494,11 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
               color: Colors.black.withOpacity(0.3),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 28),
+            child: Icon(
+              icon,
+              color: isActive ? const Color(0xFFEC407A) : Colors.white,
+              size: 28,
+            ),
           ),
         ),
         const SizedBox(height: 4),
@@ -469,8 +524,8 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: isActive ? Colors.white : Colors.white,
+        style: const TextStyle(
+          color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
@@ -491,7 +546,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
           builder: (_, controller) {
             return Container(
               decoration: const BoxDecoration(
-                color: Colors.black87,
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -505,15 +560,14 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Comments (${video.comments})',
+                          'Comments (${_formatCount(video.comments)})',
                           style: const TextStyle(
-                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -528,16 +582,10 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                           leading: const CircleAvatar(
                             backgroundImage: NetworkImage('https://randomuser.me/api/portraits/men/1.jpg'),
                           ),
-                          title: const Text(
-                            'Food Lover',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          subtitle: const Text(
-                            'This recipe looks amazing! Can\'t wait to try it!',
-                            style: TextStyle(color: Colors.white70),
-                          ),
+                          title: const Text('Food Lover'),
+                          subtitle: const Text('This recipe looks amazing! Can\'t wait to try it!'),
                           trailing: IconButton(
-                            icon: const Icon(Icons.favorite_border, color: Colors.white, size: 20),
+                            icon: const Icon(Icons.favorite_border, size: 20),
                             onPressed: () {},
                           ),
                         );
@@ -547,23 +595,20 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border(top: BorderSide(color: Colors.grey[800]!)),
+                      border: Border(top: BorderSide(color: Colors.grey[300]!)),
                     ),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
-                            style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               hintText: 'Add a comment...',
-                              hintStyle: const TextStyle(color: Colors.grey),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(25),
                                 borderSide: BorderSide.none,
                               ),
                               filled: true,
-                              fillColor: Colors.grey[900],
+                              fillColor: Colors.grey[200],
                               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             ),
                           ),
@@ -588,16 +633,18 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
 
 class VideoItem {
   final String id;
-  final String videoUrl; // Now stores YouTube video ID (not full URL)
+  final String videoUrl;
   final String userAvatar;
   final String username;
   final String title;
-  final String likes;
-  final String comments;
-  final String shares;
+  int likes;
+  final int comments;
+  final int shares;
   final String recipeName;
   final String cookingTime;
   final String difficulty;
+  bool isLiked;
+  bool isBookmarked;
 
   VideoItem({
     required this.id,
@@ -611,5 +658,7 @@ class VideoItem {
     required this.recipeName,
     required this.cookingTime,
     required this.difficulty,
+    required this.isLiked,
+    required this.isBookmarked,
   });
 }

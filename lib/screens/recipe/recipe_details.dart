@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
+import 'package:food_recipe/screens/profile/view_profile_chef.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final String recipeName;
@@ -17,7 +18,11 @@ class RecipeDetailPage extends StatefulWidget {
     required this.rating,
     required this.preparationTime,
     required this.servings,
-    required this.likeCount, required int commentCount, required String difficulty, required bool isShared, required String imageUrl,
+    required this.likeCount, 
+    required int commentCount, 
+    required String difficulty, 
+    required bool isShared, 
+    required String imageUrl,
   });
 
   @override
@@ -63,6 +68,96 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   void dispose() {
     _commentController.dispose();
     super.dispose();
+  }
+
+  void _showShareDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Share Recipe',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.link, color: Color(0xFFEC407A)),
+                title: const Text('Copy Link'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Link copied to clipboard!'),
+                      backgroundColor: Color(0xFFEC407A),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.message, color: Color(0xFFEC407A)),
+                title: const Text('Share via Message'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Opening messages...'),
+                      backgroundColor: Color(0xFFEC407A),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share, color: Color(0xFFEC407A)),
+                title: const Text('Share to Social Media'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Opening share options...'),
+                      backgroundColor: Color(0xFFEC407A),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.more_horiz, color: Color(0xFFEC407A)),
+                title: const Text('More Options'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _navigateToChefProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewChefProfilePage(
+          chefId: '1',
+          chefName: widget.chefName,
+          chefUsername: '@${widget.chefName.toLowerCase().replaceAll(' ', '')}',
+          chefImage: 'https://randomuser.me/api/portraits/women/1.jpg',
+        ),
+      ),
+    );
   }
 
   @override
@@ -128,12 +223,37 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'by ${widget.chefName}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                  const SizedBox(height: 8),
+                  
+                  // Clickable Chef Profile
+                  GestureDetector(
+                    onTap: _navigateToChefProfile,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage: const NetworkImage(
+                            'https://randomuser.me/api/portraits/women/1.jpg',
+                          ),
+                          backgroundColor: Colors.grey[300],
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'by ${widget.chefName}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFFEC407A),
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: Color(0xFFEC407A),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -145,7 +265,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       _buildStatItem(
                         icon: Icons.star,
                         value: widget.rating.toString(),
-                        color: Colors.amber,
+                        color: const Color(0xFFFFD700),
                       ),
                       _buildStatItem(
                         icon: Icons.access_time,
@@ -187,7 +307,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: _showShareDialog,
                           icon: const Icon(Icons.share, color: Color(0xFFEC407A)),
                           label: const Text(
                             'Share',
@@ -272,7 +392,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 children: List.generate(5, (index) => IconButton(
                   icon: Icon(
                     index < userRating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
+                    color: const Color(0xFFFFD700),
                     size: 30,
                   ),
                   onPressed: () => setState(() => userRating = index + 1.0),
@@ -393,9 +513,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 20,
-            backgroundColor: const Color(0xFFEC407A),
+            backgroundColor: Color(0xFFEC407A),
             child: Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(width: 12),

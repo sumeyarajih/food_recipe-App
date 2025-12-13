@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class CreateRecipeScreen extends StatefulWidget {
   const CreateRecipeScreen({super.key});
@@ -19,10 +20,10 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   // Media
   File? _imageFile; // Required image
-// Optional YouTube URL
-  YoutubePlayerController? _youtubeController;
+  File? _videoFile; // Optional video
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
   final ImagePicker _picker = ImagePicker();
-  final TextEditingController _youtubeUrlController = TextEditingController();
 
   // Recipe fields
   // ignore: unused_field
@@ -43,8 +44,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   @override
   void dispose() {
-    _youtubeController?.dispose();
-    _youtubeUrlController.dispose();
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -58,24 +59,39 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     }
   }
 
-  void _initializeYoutubePlayer(String url) {
-    final videoId = YoutubePlayer.convertUrlToId(url);
-    if (videoId != null) {
-      _youtubeController?.dispose();
-      _youtubeController = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: const YoutubePlayerFlags(
-          autoPlay: false,
-          mute: false,
-        ),
-      );
+  Future<void> _pickVideo() async {
+    final XFile? pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
+    
+    if (pickedFile != null) {
+      // Dispose old controllers
+      _videoPlayerController?.dispose();
+      _chewieController?.dispose();
+      
       setState(() {
+        _videoFile = File(pickedFile.path);
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid YouTube URL')),
-      );
+      
+      // Initialize video player
+      _initializeVideoPlayer();
     }
+  }
+
+  void _initializeVideoPlayer() async {
+    if (_videoFile == null) return;
+    
+    _videoPlayerController = VideoPlayerController.file(_videoFile!);
+    await _videoPlayerController!.initialize();
+    
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController!,
+      autoPlay: false,
+      looping: false,
+      aspectRatio: _videoPlayerController!.value.aspectRatio,
+      placeholder: Container(color: Colors.black),
+      autoInitialize: true,
+    );
+    
+    setState(() {});
   }
 
   void _removeImage() {
@@ -86,9 +102,11 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   void _removeVideo() {
     setState(() {
-      _youtubeController?.dispose();
-      _youtubeController = null;
-      _youtubeUrlController.clear();
+      _videoFile = null;
+      _videoPlayerController?.dispose();
+      _chewieController?.dispose();
+      _videoPlayerController = null;
+      _chewieController = null;
     });
   }
 
@@ -136,8 +154,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Close confirmation
-                _showSuccessModal(); // Show premium success modal
+                Navigator.pop(context);
+                _showSuccessModal();
               },
               style: ElevatedButton.styleFrom(backgroundColor: _pinkColor),
               child: const Text('Publish', style: TextStyle(color: Colors.white)),
@@ -202,7 +220,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                       parent: animation,
                       curve: Curves.easeOut,
                     )),
-                    child: Column(
+                    child: const Column(
                       children: [
                          Text(
                           'Published!',
@@ -213,8 +231,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                             letterSpacing: 1.2,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
+                        SizedBox(height: 12),
+                        Text(
                           'Your recipe is now live and ready to inspire others!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -308,8 +326,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               _buildImagePicker(),
               const SizedBox(height: 16),
               
-              // YouTube URL Input (Optional)
-              _buildYoutubeInput(),
+              // Video Picker Section (Optional)
+              _buildVideoPicker(),
               const SizedBox(height: 24),
 
               // Recipe Title
@@ -643,13 +661,13 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  Widget _buildYoutubeInput() {
+  Widget _buildVideoPicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            _buildSectionTitle('YouTube Video'),
+            _buildSectionTitle('Recipe Video'),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -669,76 +687,72 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        if (_youtubeController == null)
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _youtubeUrlController,
-                  decoration: InputDecoration(
-                    hintText: 'Paste YouTube URL here...',
-                    fillColor: Colors.grey[50],
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.video_library, color: _pinkColor),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  if (_youtubeUrlController.text.isNotEmpty) {
-                    _initializeYoutubePlayer(_youtubeUrlController.text);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _pinkColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text('Add', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          )
-        else
-          Container(
+        GestureDetector(
+          onTap: _pickVideo,
+          child: Container(
             height: 200,
+            width: double.infinity,
             decoration: BoxDecoration(
+              color: Colors.grey[100],
               borderRadius: BorderRadius.circular(20),
-              color: Colors.black,
+              border: Border.all(color: Colors.grey.shade300),
             ),
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: YoutubePlayer(
-                    controller: _youtubeController!,
-                    showVideoProgressIndicator: true,
-                  ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: GestureDetector(
-                    onTap: _removeVideo,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
+            child: _videoFile != null && _chewieController != null
+                ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Chewie(controller: _chewieController!),
                       ),
-                      child: const Icon(Icons.close, color: Colors.white, size: 20),
-                    ),
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: GestureDetector(
+                          onTap: _removeVideo,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close, color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _pinkColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.videocam, size: 40, color: _pinkColor),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Add Recipe Video',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Optional - Tap to upload from gallery',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
+        ),
       ],
     );
   }

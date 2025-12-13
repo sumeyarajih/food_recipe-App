@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food_recipe/screens/profile/message.dart';
+import 'package:food_recipe/screens/widget/recipe_card.dart';
 
 class ViewChefProfilePage extends StatefulWidget {
   final String chefId;
@@ -22,6 +24,50 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
   int _selectedTab = 0; // 0 = Recipes, 1 = Videos, 2 = About
   bool _isFollowing = false;
 
+  // Sample recipe data for this chef
+  final List<Map<String, dynamic>> _chefRecipes = [
+    {
+      'title': 'Spicy Ramen Bowl',
+      'description': 'Authentic Japanese ramen with rich broth',
+      'time': '30 min',
+      'rating': 4.8,
+      'reviewCount': 245,
+      'chefName': 'Chef Alex',
+      'isBookmarked': false,
+      'imageUrl': 'assets/images/recipe-image.jpg',
+    },
+    {
+      'title': 'Greek Salad',
+      'description': 'Fresh Mediterranean salad with feta cheese',
+      'time': '15 min',
+      'rating': 4.5,
+      'reviewCount': 189,
+      'chefName': 'Chef Alex',
+      'isBookmarked': true,
+      'imageUrl': 'assets/images/recipe-image.jpg',
+    },
+    {
+      'title': 'Chocolate Lava Cake',
+      'description': 'Decadent dessert with molten chocolate center',
+      'time': '25 min',
+      'rating': 4.9,
+      'reviewCount': 312,
+      'chefName': 'Chef Alex',
+      'isBookmarked': false,
+      'imageUrl': 'assets/images/recipe-image.jpg',
+    },
+    {
+      'title': 'Sushi Platter',
+      'description': 'Assorted fresh sushi rolls',
+      'time': '45 min',
+      'rating': 4.7,
+      'reviewCount': 423,
+      'chefName': 'Chef Alex',
+      'isBookmarked': true,
+      'imageUrl': 'assets/images/recipe-image.jpg',
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,12 +76,12 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
         backgroundColor: const Color(0xFFEC407A),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
+            icon: const Icon(Icons.more_vert, color: Colors.white),
             onPressed: () => _showOptionsDialog(context),
           ),
         ],
@@ -43,7 +89,7 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
         title: Text(
           widget.chefName,
           style: const TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -94,7 +140,7 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
                 ),
                 child: CircleAvatar(
                   radius: 55,
-                  backgroundImage: AssetImage(widget.chefImage),
+                  backgroundImage: NetworkImage(widget.chefImage),
                   backgroundColor: Colors.grey[200],
                 ),
               ),
@@ -149,7 +195,7 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatColumn('124', 'Recipes'),
+          _buildStatColumn('${_chefRecipes.length}', 'Recipes'),
           _buildStatColumn('1.2M', 'Followers'),
           _buildStatColumn('24.8M', 'Likes'),
           _buildStatColumn('384', 'Following'),
@@ -347,7 +393,7 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
   Widget _buildTabContent() {
     switch (_selectedTab) {
       case 0:
-        return _buildRecipesGrid();
+        return _buildRecipesTab();
       case 1:
         return _buildVideosGrid();
       case 2:
@@ -357,169 +403,215 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
     }
   }
 
-  Widget _buildRecipesGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        mainAxisSpacing: 2,
-        crossAxisSpacing: 2,
+  Widget _buildRecipesTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: _chefRecipes.map((recipe) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: RecipeCard(
+              title: recipe['title'],
+              description: recipe['description'],
+              time: recipe['time'],
+              rating: recipe['rating'],
+              reviewCount: recipe['reviewCount'],
+              chefName: recipe['chefName'],
+              isBookmarked: recipe['isBookmarked'],
+              imageUrl: recipe['imageUrl'],
+            ),
+          );
+        }).toList(),
       ),
-      itemCount: 6,
-      itemBuilder: (context, index) {
-        final recipes = [
-          {
-            'title': 'Spicy Ramen Bowl',
-            'image': 'assets/ramen.jpg',
-            'likes': '245K',
-          },
-          {
-            'title': 'Greek Salad',
-            'image': 'assets/salad.jpg',
-            'likes': '128K',
-          },
-          {
-            'title': 'Chocolate Cake',
-            'image': 'assets/cake.jpg',
-            'likes': '356K',
-          },
-          {
-            'title': 'BBQ Chicken',
-            'image': 'assets/bbq.jpg',
-            'likes': '189K',
-          },
-          {
-            'title': 'Sushi Platter',
-            'image': 'assets/sushi.jpg',
-            'likes': '412K',
-          },
-          {
-            'title': 'Pasta Carbonara',
-            'image': 'assets/pasta.jpg',
-            'likes': '267K',
-          },
-        ];
-
-        final recipe = recipes[index % recipes.length];
-        return Container(
-          child: Stack(
-            children: [
-              Image.asset(
-                recipe['image']!,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(Icons.fastfood, color: Colors.grey),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.8),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        recipe['title']!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.favorite,
-                              color: Colors.white, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            recipe['likes']!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
   Widget _buildVideosGrid() {
-    return GridView.builder(
+    return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.6,
-        mainAxisSpacing: 2,
-        crossAxisSpacing: 2,
-      ),
-      itemCount: 9,
+      padding: const EdgeInsets.all(16),
+      itemCount: 6,
       itemBuilder: (context, index) {
+        final videoData = [
+          {
+            'title': 'How to Make Perfect Carbonara',
+            'views': '245K',
+            'duration': '8:32',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+          {
+            'title': 'Quick & Easy Breakfast Ideas',
+            'views': '189K',
+            'duration': '5:45',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+          {
+            'title': 'Chocolate Cake Tutorial',
+            'views': '412K',
+            'duration': '12:15',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+          {
+            'title': 'Sushi Rolling Masterclass',
+            'views': '356K',
+            'duration': '15:20',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+          {
+            'title': 'Grilled Salmon Techniques',
+            'views': '298K',
+            'duration': '10:05',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+          {
+            'title': 'Dessert Plating Tips',
+            'views': '167K',
+            'duration': '6:40',
+            'thumbnail': 'assets/images/recipe-image.jpg',
+          },
+        ];
+
+        final video = videoData[index % videoData.length];
+        
         return Container(
-          color: Colors.grey[200],
-          child: Stack(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.play_circle_filled,
-                        color: Colors.white, size: 40),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Video ${index + 1}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+              // Video Thumbnail
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Image.asset(
+                        video['thumbnail']!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: Icon(
+                              Icons.videocam,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: Row(
-                  children: [
-                    const Icon(Icons.play_arrow,
-                        color: Colors.white, size: 12),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${(index + 1) * 10}K',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
+                  ),
+                  
+                  // Play Button Overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.3),
+                          ],
+                        ),
                       ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.play_circle_filled,
+                          size: 64,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Duration Badge
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        video['duration']!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              // Video Info
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video['title']!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.play_arrow,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${video['views']} views',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Icon(
+                          Icons.access_time,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '2 days ago',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -605,11 +697,15 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
   }
 
   void _sendMessage() {
-    // Implement message functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Message feature coming soon!'),
-        backgroundColor: Color(0xFFEC407A),
+    // Navigate to message page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MessagePage(
+          chefName: widget.chefName,
+          chefUsername: widget.chefUsername,
+          chefImage: widget.chefImage,
+        ),
       ),
     );
   }
@@ -631,7 +727,6 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
                     style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement report functionality
                 },
               ),
               ListTile(
@@ -639,7 +734,6 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
                 title: const Text('Block User'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement block functionality
                 },
               ),
               ListTile(
@@ -647,7 +741,6 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
                 title: const Text('Share Profile'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement share functionality
                 },
               ),
               ListTile(
@@ -655,7 +748,6 @@ class _ViewChefProfilePageState extends State<ViewChefProfilePage> {
                 title: const Text('Copy Profile Link'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement copy link functionality
                 },
               ),
               Padding(
