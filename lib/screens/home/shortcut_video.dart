@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
+import 'package:food_recipe/core/color.dart';
+import 'package:food_recipe/core/text_style.dart';
+import 'package:food_recipe/responsive/responsive.dart';
 
 class ShortcutVideoPage extends StatefulWidget {
   const ShortcutVideoPage({Key? key}) : super(key: key);
@@ -303,9 +306,9 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
 
                     // Video Info Overlay
                     Positioned(
-                      bottom: 100,
-                      left: 16,
-                      right: 90,
+                      bottom: 100 + MediaQuery.of(context).padding.bottom,
+                      left: context.responsive.padding(16),
+                      right: context.responsive.padding(90),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -319,11 +322,10 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                               const SizedBox(width: 8),
                               Text(
                                 video.username,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppColors.textWhite,
                                   fontWeight: FontWeight.bold,
-                                  shadows: [
+                                  shadows: const [
                                     Shadow(blurRadius: 4, color: Colors.black),
                                   ],
                                 ),
@@ -335,11 +337,9 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                           // Video Title
                           Text(
                             video.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
+                            style: AppTextStyles.h4.copyWith(
+                              color: AppColors.textWhite,
+                              shadows: const [
                                 Shadow(blurRadius: 6, color: Colors.black),
                               ],
                             ),
@@ -372,8 +372,8 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
 
                     // Right Side Actions
                     Positioned(
-                      right: 8,
-                      bottom: 100,
+                      right: context.responsive.padding(8),
+                      bottom: 100 + MediaQuery.of(context).padding.bottom,
                       child: Column(
                         children: [
                           // Like Button
