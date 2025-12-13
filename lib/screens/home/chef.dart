@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food_recipe/screens/profile/view_profile_chef.dart';
 import 'package:food_recipe/screens/widget/top_nav_bar.dart';
 import 'package:food_recipe/screens/widget/button_nav_bar.dart';
+import 'package:food_recipe/screens/widget/background_decoration.dart';
 
 class ChefPage extends StatefulWidget {
   const ChefPage({super.key});
@@ -11,8 +12,11 @@ class ChefPage extends StatefulWidget {
 }
 
 class _ChefPageState extends State<ChefPage> {
-  int _currentBottomNavIndex = 3; // Assuming chefs is index 1 in bottom nav
-  final List<Chef> _chefs = [
+  int _currentBottomNavIndex = 3;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  
+  final List<Chef> _allChefs = [
     Chef(
       name: 'Gordon Ramsay',
       username: '@gordonramsay',
@@ -51,51 +55,142 @@ class _ChefPageState extends State<ChefPage> {
     ),
   ];
 
+  List<Chef> get _filteredChefs {
+    if (_searchQuery.isEmpty) {
+      return _allChefs;
+    }
+    return _allChefs.where((chef) {
+      return chef.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          chef.username.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: const TopNavBar(
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search chefs...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 0,
-                    horizontal: 20,
+      appBar: const TopNavBar(),
+      body: Stack(
+        children: [
+          // Background decoration
+          const BackgroundDecoration(),
+          
+          // Content
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search chefs...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Color(0xFFEC407A),
+                      ),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.grey),
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _searchQuery = '';
+                                });
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 20,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                
+                // Search results count
+                if (_searchQuery.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      '${_filteredChefs.length} chef${_filteredChefs.length != 1 ? 's' : ''} found',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                
+                // Chef list
+                _filteredChefs.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.person_search,
+                              size: 80,
+                              color: Colors.grey.shade300,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No chefs found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Try a different search term',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _filteredChefs.length,
+                        itemBuilder: (context, index) {
+                          return _ChefCard(
+                            chef: _filteredChefs[index],
+                            onFollowPressed: () {
+                              setState(() {
+                                _filteredChefs[index].isFollowing = !_filteredChefs[index].isFollowing;
+                              });
+                            },
+                          );
+                        },
+                      ),
+              ],
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _chefs.length,
-              itemBuilder: (context, index) {
-                return _ChefCard(
-                  chef: _chefs[index],
-                  onFollowPressed: () {
-                    setState(() {
-                      _chefs[index].isFollowing = !_chefs[index].isFollowing;
-                    });
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentBottomNavIndex,
@@ -237,12 +332,19 @@ class _ChefCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextButton(
-                   onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ViewChefProfilePage(chefId: chef.bio, chefName: chef.name, chefUsername: chef.username, chefImage: chef.image)),
-    );
-                   },
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewChefProfilePage(
+                            chefId: chef.bio,
+                            chefName: chef.name,
+                            chefUsername: chef.username,
+                            chefImage: chef.image,
+                          ),
+                        ),
+                      );
+                    },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black,
                       textStyle: const TextStyle(

@@ -373,7 +373,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           Checkbox(
             value: ingredient['checked'],
             onChanged: (value) => setState(() => ingredient['checked'] = value),
-            activeColor: Colors.orange,
+            activeColor: const Color(0xFFEC407A),
           ),
           Text(
             ingredient['name'],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
+// REPLACE the old video_player and chewie imports with youtube_player_flutter
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ShortcutVideoPage extends StatefulWidget {
   const ShortcutVideoPage({Key? key}) : super(key: key);
@@ -10,11 +10,12 @@ class ShortcutVideoPage extends StatefulWidget {
 }
 
 class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
-  // Sample video data - in real app, fetch from API
+  // Sample video data - NOW WITH YOUTUBE VIDEO IDs
   final List<VideoItem> _forYouVideos = [
     VideoItem(
       id: '1',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+      // Use YouTube video ID instead of direct URL
+      videoUrl: '907vZOyWTo8', // YouTube video ID (not full URL)
       userAvatar: 'https://randomuser.me/api/portraits/women/1.jpg',
       username: 'Chef Maria',
       title: 'Perfect Carbonara Recipe',
@@ -27,7 +28,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     ),
     VideoItem(
       id: '2',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+      videoUrl: '3SVi80fjs7U', // Another YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/men/2.jpg',
       username: 'Master Chef John',
       title: 'Homemade Pizza from Scratch',
@@ -40,7 +41,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     ),
     VideoItem(
       id: '3',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'f2qsR2rrl8M', // YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/women/3.jpg',
       username: 'Vegan Delights',
       title: 'Vegan Buddha Bowl',
@@ -51,25 +52,12 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
       cookingTime: '20 min',
       difficulty: 'Easy',
     ),
-    VideoItem(
-      id: '4',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      userAvatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-      username: 'BBQ King',
-      title: 'Perfect Steak Grilling',
-      likes: '4.2k',
-      comments: '287',
-      shares: '67',
-      recipeName: 'Ribeye Steak',
-      cookingTime: '25 min',
-      difficulty: 'Medium',
-    ),
   ];
 
   final List<VideoItem> _followingVideos = [
     VideoItem(
       id: '5',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      videoUrl: '-BYWbosiYlw', // YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/women/5.jpg',
       username: 'Pastry Queen',
       title: 'Chocolate Croissants',
@@ -82,7 +70,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     ),
     VideoItem(
       id: '6',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      videoUrl: 'iLnmTe5Q2Qw', // YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/men/6.jpg',
       username: 'Sushi Master',
       title: 'Authentic Sushi Rolls',
@@ -98,7 +86,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
   final List<VideoItem> _trendingVideos = [
     VideoItem(
       id: '7',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+      videoUrl: 's6zR2T9vn2c', // YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/women/7.jpg',
       username: 'Soup Goddess',
       title: 'Hearty Tomato Soup',
@@ -111,7 +99,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     ),
     VideoItem(
       id: '8',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+      videoUrl: 'dQw4w9WgXcQ', // YouTube video ID
       userAvatar: 'https://randomuser.me/api/portraits/men/8.jpg',
       username: 'Burger Expert',
       title: 'Gourmet Burger',
@@ -125,7 +113,8 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
   ];
 
   final PageController _pageController = PageController();
-  final List<ChewieController?> _chewieControllers = [];
+  // REPLACE: Change from List<ChewieController?> to List<YoutubePlayerController?>
+  final List<YoutubePlayerController?> _youtubeControllers = [];
   int _currentTab = 0; // 0 = For You, 1 = Following, 2 = Trending
   List<VideoItem> _currentVideos = [];
 
@@ -136,37 +125,32 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     _initializeVideos();
   }
 
-  void _initializeVideos() async {
+  void _initializeVideos() {
+    // REPLACE: Clear old controllers and initialize YouTube controllers
     _clearControllers();
     for (var video in _currentVideos) {
-      final videoPlayerController = VideoPlayerController.network(video.videoUrl);
-      await videoPlayerController.initialize();
-      _chewieControllers.add(ChewieController(
-        videoPlayerController: videoPlayerController,
-        autoPlay: false,
-        looping: true,
-        showControls: false,
-        allowMuting: true,
-        allowFullScreen: true,
-        autoInitialize: true,
-        errorBuilder: (context, errorMessage) {
-          return Center(
-            child: Text(
-              errorMessage,
-              style: const TextStyle(color: Colors.white),
-            ),
-          );
-        },
-      ));
+      // Create YouTube player controller for each video[citation:3][citation:4]
+      final controller = YoutubePlayerController(
+        initialVideoId: video.videoUrl,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          hideControls: true,
+          disableDragSeek: true,
+          enableCaption: false,
+        ),
+      );
+      _youtubeControllers.add(controller);
     }
     setState(() {});
   }
 
   void _clearControllers() {
-    for (var controller in _chewieControllers) {
+    // REPLACE: Dispose YouTube controllers instead of Chewie controllers
+    for (var controller in _youtubeControllers) {
       controller?.dispose();
     }
-    _chewieControllers.clear();
+    _youtubeControllers.clear();
   }
 
   void _switchTab(int tabIndex) {
@@ -210,37 +194,51 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
             scrollDirection: Axis.vertical,
             itemCount: _currentVideos.length,
             onPageChanged: (index) {
-              setState(() {
-              });
               // Pause previous video
-              if (_chewieControllers.isNotEmpty && index > 0) {
-                _chewieControllers[index - 1]?.pause();
+              if (_youtubeControllers.isNotEmpty && index > 0) {
+                _youtubeControllers[index - 1]?.pause();
               }
             },
             itemBuilder: (context, index) {
-              if (index >= _chewieControllers.length || _chewieControllers[index] == null) {
+              if (index >= _youtubeControllers.length || _youtubeControllers[index] == null) {
                 return const Center(
                   child: CircularProgressIndicator(color: Colors.white),
                 );
               }
 
               final video = _currentVideos[index];
+              final controller = _youtubeControllers[index]!;
+              
               return Stack(
                 children: [
-                  // Video Player
+                  // REPLACE: YouTube Video Player instead of Chewie
                   GestureDetector(
                     onTap: () {
-                      if (_chewieControllers[index]!.isPlaying) {
-                        _chewieControllers[index]!.pause();
+                      if (controller.value.isPlaying) {
+                        controller.pause();
                       } else {
-                        _chewieControllers[index]!.play();
+                        controller.play();
                       }
                       setState(() {});
                     },
-                    child: Chewie(controller: _chewieControllers[index]!),
+                    child: YoutubePlayer(
+                      controller: controller,
+                      progressIndicatorColor: Colors.amber,
+                      progressColors: const ProgressBarColors(
+                        playedColor: Colors.amber,
+                        handleColor: Colors.amberAccent,
+                      ),
+                      onReady: () {
+                        // Video is ready to play
+                      },
+                      onEnded: (metaData) {
+                        // Loop the video by seeking back to start
+                        controller.seekTo(const Duration(seconds: 0));
+                      },
+                    ),
                   ),
 
-                  // Video Info Overlay
+                  // Video Info Overlay - UNCHANGED from your original code
                   Positioned(
                     bottom: 80,
                     left: 16,
@@ -314,7 +312,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                     ),
                   ),
 
-                  // Right Side Actions
+                  // Right Side Actions - UNCHANGED from your original code
                   Positioned(
                     right: 16,
                     bottom: 80,
@@ -362,12 +360,12 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
                     ),
                   ),
 
-                  // Play/Pause Indicator
-                  if (!_chewieControllers[index]!.isPlaying)
+                  // Play/Pause Indicator - MODIFIED for YouTube controller
+                  if (!controller.value.isPlaying)
                     Positioned.fill(
                       child: GestureDetector(
                         onTap: () {
-                          _chewieControllers[index]!.play();
+                          controller.play();
                           setState(() {});
                         },
                         child: Container(
@@ -387,7 +385,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
             },
           ),
 
-          // Top Bar with functional tabs
+          // Top Bar with functional tabs - UNCHANGED from your original code
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 0,
@@ -415,6 +413,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     );
   }
 
+  // Helper methods - ALL UNCHANGED from your original code
   Widget _buildInfoChip(IconData icon, String text) {
     return Row(
       children: [
@@ -589,7 +588,7 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
 
 class VideoItem {
   final String id;
-  final String videoUrl;
+  final String videoUrl; // Now stores YouTube video ID (not full URL)
   final String userAvatar;
   final String username;
   final String title;

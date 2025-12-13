@@ -31,23 +31,37 @@ class RecipeCard extends StatefulWidget {
   State<RecipeCard> createState() => _RecipeCardState();
 }
 
-class _RecipeCardState extends State<RecipeCard> {
+class _RecipeCardState extends State<RecipeCard> with SingleTickerProviderStateMixin {
   bool _isLiked = false;
-  bool _showLikeAnimation = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _handleLike() {
     setState(() {
       _isLiked = !_isLiked;
-      _showLikeAnimation = _isLiked;
     });
     
-    if (_showLikeAnimation) {
-      Future.delayed(const Duration(milliseconds: 800), () {
-        if (mounted) {
-          setState(() {
-            _showLikeAnimation = false;
-          });
-        }
+    if (_isLiked) {
+      _animationController.forward().then((_) {
+        _animationController.reverse();
       });
     }
     
@@ -77,21 +91,36 @@ class _RecipeCardState extends State<RecipeCard> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // FIX 1: Changed to min to prevent expansion
+        mainAxisSize: MainAxisSize.min,
         children: [
+          // Image Section
           Stack(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.network(
+                child: Image.asset(
                   widget.imageUrl,
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: 180,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.fastfood, size: 50, color: Colors.grey),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.fastfood, size: 50, color: Colors.grey[400]),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Image not found',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -99,7 +128,7 @@ class _RecipeCardState extends State<RecipeCard> {
                 bottom: 12,
                 left: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -111,176 +140,172 @@ class _RecipeCardState extends State<RecipeCard> {
                       ),
                     ],
                   ),
-                  child: Text(
-                    widget.time,
-                    style: const TextStyle(
-                      color: Color(0xFFEC407A),
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Color(0xFFEC407A),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.time,
+                        style: const TextStyle(
+                          color: Color(0xFFEC407A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
           
-          // FIX 2: Wrapped content in IntrinsicHeight to prevent overflow
-          IntrinsicHeight(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      ...List.generate(5, (index) => Icon(
-                        index < widget.rating.floor() ? Icons.star : Icons.star_border,
-                        color: const Color(0xFFEC407A),
-                        size: 16,
-                      )),
-                      const SizedBox(width: 4),
-                      Text(
-                        '(${widget.reviewCount})',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
+          // Content Section
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Rating and Like Row
+                Row(
+                  children: [
+                    ...List.generate(5, (index) => Icon(
+                      index < widget.rating.floor() ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFFFD700),
+                      size: 16,
+                    )),
+                    const SizedBox(width: 4),
+                    Text(
+                      '(${widget.reviewCount})',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const Spacer(),
+                    // Fixed favorite icon - single icon with animation
+                    GestureDetector(
+                      onTap: _handleLike,
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Icon(
+                          _isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: _isLiked ? const Color(0xFFEC407A) : Colors.black87,
+                          size: 24,
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: _handleLike,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_showLikeAnimation)
-                                const Icon(
-                                  Icons.favorite,
-                                  color: Color(0xFFEC407A),
-                                  size: 24,
-                                ),
-                              Icon(
-                                _isLiked ? Icons.favorite : Icons.favorite_border,
-                                color: _isLiked ? const Color(0xFFEC407A) : Colors.black87,
-                                size: 24,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Title
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(height: 8),
-                  
-                  // FIX 3: Wrapped title and description in Flexible to prevent overflow
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                
+                // Description
+                Text(
+                  widget.description,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                
+                // Chef and Button Row
+                Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFEC407A),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        size: 12,
+                        color: Color(0xFFEC407A),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.chefName,
                         style: const TextStyle(
-                          fontSize: 18,
+                          color: Color(0xFFEC407A),
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          fontSize: 13,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.description,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 12),
-                  
-                  // FIX 4: Added bottom padding to the button row
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0), // Extra bottom padding
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFEC407A),
-                              width: 2,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.person,
-                            size: 12,
-                            color: Color(0xFFEC407A),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded( // FIX 5: Wrapped text in Expanded
-                          child: Text(
-                            widget.chefName,
-                            style: const TextStyle(
-                              color: Color(0xFFEC407A),
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RecipeDetailPage(
-                                  recipeName: widget.title,
-                                  chefName: widget.chefName,
-                                  rating: widget.rating.toDouble(),
-                                  commentCount: widget.reviewCount,
-                                  preparationTime: int.tryParse(widget.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-                                  difficulty: 'Medium',
-                                  servings: 4,
-                                  likeCount: 0,
-                                  isShared: false, 
-                                  imageUrl: widget.imageUrl, // Fixed: use actual imageUrl
-                                ),
-                              ),
-                            );
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(const Color(0xFFEC407A)),
-                            foregroundColor: WidgetStateProperty.all(Colors.white),
-                            shape: WidgetStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            padding: WidgetStateProperty.all(
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            ),
-                            elevation: WidgetStateProperty.all(2),
-                          ),
-                          child: const Text(
-                            'View Recipe',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipeDetailPage(
+                              recipeName: widget.title,
+                              chefName: widget.chefName,
+                              rating: widget.rating.toDouble(),
+                              commentCount: widget.reviewCount,
+                              preparationTime: int.tryParse(widget.time.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                              difficulty: 'Medium',
+                              servings: 4,
+                              likeCount: 0,
+                              isShared: false, 
+                              imageUrl: widget.imageUrl,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(const Color(0xFFEC407A)),
+                        foregroundColor: WidgetStateProperty.all(Colors.white),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        padding: WidgetStateProperty.all(
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        elevation: WidgetStateProperty.all(2),
+                      ),
+                      child: const Text(
+                        'View Recipe',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

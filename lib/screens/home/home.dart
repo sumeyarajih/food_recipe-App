@@ -22,7 +22,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 245,
     'chefName': 'Maria R.',
     'isBookmarked': true,
-    'imageUrl': 'assets/spaghetti.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'dinner',
   },
   {
@@ -33,7 +33,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 128,
     'chefName': 'Emma W.',
     'isBookmarked': false,
-    'imageUrl': 'assets/avocado_toast.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'breakfast',
   },
   {
@@ -44,7 +44,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 312,
     'chefName': 'Sophia C.',
     'isBookmarked': true,
-    'imageUrl': 'assets/chocolate_cake.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'desserts',
   },
   {
@@ -55,7 +55,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 89,
     'chefName': 'James C.',
     'isBookmarked': false,
-    'imageUrl': 'assets/caesar_salad.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'lunch',
   },
   {
@@ -66,7 +66,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 167,
     'chefName': 'Michael B.',
     'isBookmarked': true,
-    'imageUrl': 'assets/pancakes.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'breakfast',
   },
   {
@@ -77,7 +77,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 201,
     'chefName': 'Olivia T.',
     'isBookmarked': false,
-    'imageUrl': 'assets/salmon.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'dinner',
   },
   {
@@ -88,7 +88,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 278,
     'chefName': 'Maria R.',
     'isBookmarked': true,
-    'imageUrl': 'assets/tiramisu.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'desserts',
   },
   {
@@ -99,7 +99,7 @@ final List<Map<String, dynamic>> recipeJsonList = [
     'reviewCount': 95,
     'chefName': 'Emma W.',
     'isBookmarked': false,
-    'imageUrl': 'assets/sandwich.jpg',
+    'imageUrl': 'assets/images/recipe-image.jpg',
     'category': 'lunch',
   },
 ];
