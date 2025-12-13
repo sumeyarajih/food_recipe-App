@@ -193,18 +193,6 @@ class _ShortcutVideoPageState extends State<ShortcutVideoPage> {
     });
   }
 
-  void _toggleBookmark(int index) {
-    setState(() {
-      _currentVideos[index].isBookmarked = !_currentVideos[index].isBookmarked;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_currentVideos[index].isBookmarked ? 'Recipe saved!' : 'Recipe removed'),
-        duration: const Duration(seconds: 1),
-        backgroundColor: const Color(0xFFEC407A),
-      ),
-    );
-  }
 
   void _handleShare(VideoItem video) {
     showModalBottomSheet(
